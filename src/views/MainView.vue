@@ -8,7 +8,7 @@
         <template #item="{ element }">
           <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
           <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
-          <NButton v-else dashed class="should-not-be-dragged"></NButton>
+          <NButton v-else size="large" dashed class="should-not-be-dragged"></NButton>
         </template>
       </draggable>
     </div>
@@ -62,7 +62,7 @@
 <script setup>
 import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, useMessage } from 'naive-ui';
 import draggable from "vuedraggable-swap";
-//import { useSeatStore } from "@/stores/seats";
+import { useSeatStore } from "@/stores/seats";
 import { usePersonStore } from "@/stores/person";
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
@@ -80,7 +80,8 @@ const parseName = () => {
 };
 
 const getRenderingList = (x) => {
-  let result;
+  let result = [];
+  if (x.value.length === 0) return result;
   result = x.value.map((name, index) => {
     return { name: name, isSeat: true, index: index };
   }).flatMap((value, index) => {
@@ -115,16 +116,22 @@ const getRenderingList = (x) => {
   return result;
 };
 
-//const seatStore = useSeatStore();
+const seatStore = useSeatStore();
 const personStore = usePersonStore();
-//const { allSeats, whoInEdgeSeats } = storeToRefs(seatStore);
+const { allSeats, whoInEdgeSeats, edgeSeatsIndex } = storeToRefs(seatStore);
 const { allPerson } = storeToRefs(personStore);
 
-/*const parseEdgeSeat = (x) => {
+const parseEdgeSeatIndex = (x) => {
+  const l = x.value.length;
+  if (l === 0) return [];
   let result = [];
-  result.concat(x.slice(0, 11));
+  for (let i = 0; i < (l / 8); i++)
+  {
+    result.push({ index: i }, { index: i + 8 });
+  }
+  if (l % 8 !== 0) result.push({ index: Math.floor(l / 8) + 1 });
   return result;
-};*/
+};
 const addPerson = () => {
   //if(formMultiValue.value.names.length===0) message.warning("至少添加一个")
   allPerson.value.push(...formMultiValue.value.names);
@@ -152,6 +159,14 @@ function shuffleArray(array)
   return newArray;
 }
 
+allSeats.value = allPerson.value.map((name, index) => {
+  return { name: name, isSeat: true, index: index };
+});
+edgeSeatsIndex.value = parseEdgeSeatIndex(allPerson);
+//whoInEdgeSeats.value = edgeSeatsIndex.value.map(index => allSeats[index]);
+/*onMounted(()=>{
+  console.log(edgeSeatsIndex)
+})*/
 </script>
 <!--suppress CssUnresolvedCustomProperty -->
 <style scoped>
