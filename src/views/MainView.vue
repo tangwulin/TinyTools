@@ -4,6 +4,7 @@
     <div class="flex items-center justify-center h-1/2">
       <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true" animation="150"
                  class="text-center w-2/3 h-1/2 grid grid-cols-11" item-key="id">
+        <!--suppress VueUnrecognizedSlot -->
         <template #item="{ element }">
           <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
           <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
@@ -61,7 +62,7 @@
 <script setup>
 import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, useMessage } from 'naive-ui';
 import draggable from "vuedraggable-swap";
-import { useSeatStore } from "@/stores/seats";
+//import { useSeatStore } from "@/stores/seats";
 import { usePersonStore } from "@/stores/person";
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
@@ -114,16 +115,16 @@ const getRenderingList = (x) => {
   return result;
 };
 
-const seatStore = useSeatStore();
+//const seatStore = useSeatStore();
 const personStore = usePersonStore();
-const { allSeats, whoInEdgeSeats } = storeToRefs(seatStore);
+//const { allSeats, whoInEdgeSeats } = storeToRefs(seatStore);
 const { allPerson } = storeToRefs(personStore);
 
-const parseEdgeSeat = (x) => {
+/*const parseEdgeSeat = (x) => {
   let result = [];
   result.concat(x.slice(0, 11));
   return result;
-};
+};*/
 const addPerson = () => {
   //if(formMultiValue.value.names.length===0) message.warning("至少添加一个")
   allPerson.value.push(...formMultiValue.value.names);
