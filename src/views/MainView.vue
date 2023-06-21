@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="flex items-center justify-center h-1/2">
       <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true" animation="150"
                  class="text-center w-2/3 h-1/2 grid grid-cols-11" item-key="id">
@@ -64,8 +63,9 @@ import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, useMess
 import draggable from "vuedraggable-swap";
 import { useSeatStore } from "@/stores/seats";
 import { usePersonStore } from "@/stores/person";
-import { computed, ref } from "vue";
+import {  ref } from "vue";
 import { storeToRefs } from "pinia";
+import SeatTable from "@/components/SeatTable.vue";
 
 const message = useMessage();
 const showAddMultiModal = ref(false);
@@ -93,10 +93,9 @@ const getRenderingList = (x) => {
       return value;
     }
   });
-  //console.log('result.length:'+result.length)
+
   let remaining = 11 - Math.ceil(result.length % 11);
-  //console.log('remaining:'+remaining);
-  //console.log(Math.ceil(remaining % 3))
+
   if (remaining % 3 !== 0)
   {
     for (let i = 0; i < Math.ceil(remaining % 3); i++)
@@ -118,7 +117,7 @@ const getRenderingList = (x) => {
 
 const seatStore = useSeatStore();
 const personStore = usePersonStore();
-const { allSeats, whoInEdgeSeats, edgeSeatsIndex } = storeToRefs(seatStore);
+const { allSeats, edgeSeatsIndex } = storeToRefs(seatStore);
 const { allPerson } = storeToRefs(personStore);
 
 const parseEdgeSeatIndex = (x) => {
@@ -133,14 +132,13 @@ const parseEdgeSeatIndex = (x) => {
   return result;
 };
 const addPerson = () => {
-  //if(formMultiValue.value.names.length===0) message.warning("至少添加一个")
   allPerson.value.push(...formMultiValue.value.names);
   message.success("添加成功，共添加了" + formMultiValue.value.names.length + "个");
   showAddMultiModal.value = false;
   formMultiValue.value.names = [];
 };
 const personList = allPerson;
-const renderingList = computed(() => getRenderingList(personList));
+const renderingList = ref(getRenderingList(personList))
 
 const reSort = () => {
   personList.value = shuffleArray(personList.value);
@@ -163,10 +161,7 @@ allSeats.value = allPerson.value.map((name, index) => {
   return { name: name, isSeat: true, index: index };
 });
 edgeSeatsIndex.value = parseEdgeSeatIndex(allPerson);
-//whoInEdgeSeats.value = edgeSeatsIndex.value.map(index => allSeats[index]);
-/*onMounted(()=>{
-  console.log(edgeSeatsIndex)
-})*/
+
 </script>
 <!--suppress CssUnresolvedCustomProperty -->
 <style scoped>
