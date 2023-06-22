@@ -8,7 +8,6 @@ import MainView from "@/views/MainView.vue";
 <!--    <NSpace>
       <RouterLink to="/">MainView</RouterLink>
       <RouterLink to="/about">About</RouterLink>
-      <RouterLink to="/home">Home</RouterLink>
       <RouterLink to="/seat">Seat</RouterLink>
     </NSpace>
     <RouterView />-->
