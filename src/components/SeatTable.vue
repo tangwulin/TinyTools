@@ -27,7 +27,7 @@ const seats = computed({
     }
     else
     {
-      renderingList.value = getRenderingList(seats.value)
+      renderingList.value = getRenderingList(seats.value,renderingList.value)
     }
     emit('update:seats', value)
   }

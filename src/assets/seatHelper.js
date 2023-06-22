@@ -1,39 +1,56 @@
-export const getRenderingList = (x) => {
+export const getRenderingList = (x=[], oldRenderingList = []) => {
   let stopwatch = performance.now()
   if (x.length === 0) return []
 
-  const result = x.map(item => ({
-    name: item.name, isSeat: true, index: item.index, color: item.color
-  })).flatMap((value, index) => {
-    if ((index + 1) % 2 === 0 && (index + 1) % 8 !== 0)
-    {
-      return [value, { name: null, isSeat: false }]
-    }
-    else
-    {
-      return value
-    }
-  })
-  console.log('convert time:' + (performance.now() - stopwatch))
-  stopwatch = performance.now()
-  const remaining = 11 - (result.length % 11)
-
-  if (remaining % 3 !== 0)
+  if (oldRenderingList.length===0) //判断是否为拖动导致的更新
   {
-    for (let i = 0; i < remaining % 3; i++)
-    {
-      result.push({ name: null, isSeat: false, isDashed: true })
-    }
-  }
-
-  for (let i = 0; i < (remaining - remaining % 3) / 3; i++)
-  {
-    result.push({ name: null, isSeat: false }, { name: null, isSeat: false, isDashed: true }, {
-      name: null, isSeat: false, isDashed: true
+    console.log('Calculation mode')
+    const result = x.map(item => ({
+      name: item.name, isSeat: true, index: item.index, color: item.color
+    })).flatMap((value, index) => {
+      if ((index + 1) % 2 === 0 && (index + 1) % 8 !== 0)
+      {
+        return [value, { name: null, isSeat: false }]
+      }
+      else
+      {
+        return value
+      }
     })
+    console.log('convert time:' + (performance.now() - stopwatch))
+    stopwatch = performance.now()
+    const remaining = 11 - (result.length % 11)
+
+    if (remaining % 3 !== 0)
+    {
+      for (let i = 0; i < remaining % 3; i++)
+      {
+        result.push({ name: null, isSeat: false, isDashed: true })
+      }
+    }
+
+    for (let i = 0; i < (remaining - remaining % 3) / 3; i++)
+    {
+      result.push({ name: null, isSeat: false }, { name: null, isSeat: false, isDashed: true }, {
+        name: null, isSeat: false, isDashed: true
+      })
+    }
+    console.log('add blank time:' + (performance.now() - stopwatch))
+    return result
   }
-  console.log('add blank time:' + (performance.now() - stopwatch))
-  return result
+  else
+  {
+    console.log('Replace mode')
+    let i = 0
+    oldRenderingList.forEach(item => {
+      if (item.isSeat)
+      {
+        item.name = x[i].name
+        i++
+      }
+    })
+    return oldRenderingList
+  }
 }
 
 export const parseRenderingListToSeats = (x) => {
