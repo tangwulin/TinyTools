@@ -1,17 +1,10 @@
-import {  ref } from "vue";
+import { computed, ref } from 'vue'
 import { defineStore } from "pinia";
-
+import {parseEdgeSeatIndex} from '@/assets/seatHelper'
 
 export const useSeatStore = defineStore('seat', () => {
         const allSeats = ref([])
-        const edgeSeatsIndex = ref([])
-        //const whoInEdgeSeats = computed(edgeSeatsIndex.value.map(index => allSeats.value[index]))
-
-        /*function increment()
-        {
-            count.value++
-        }*/
-
+        const edgeSeatsIndex = computed(()=>parseEdgeSeatIndex(allSeats.value.length))
         return { allSeats, edgeSeatsIndex }
     },
     {

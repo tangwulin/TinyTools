@@ -6,6 +6,7 @@
     <div class="flex items-center justify-center mt-16 flex-col">
       <div>
         <NButtonGroup>
+          <n-button @click="updateSeats">刷新</n-button>
           <NButton @click="reSort">随机排列座位</NButton>
           <n-button>重新排列座位</n-button>
           <NButton>保存</NButton>
@@ -65,115 +66,78 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, useMessage } from 'naive-ui';
-import SeatTable from "@/components/SeatTable.vue";
-import { useSeatStore } from "@/stores/seats";
-import { usePersonStore } from "@/stores/person";
-import { storeToRefs } from "pinia";
+import { ref, watch } from 'vue'
+import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, useMessage } from 'naive-ui'
+import SeatTable from '@/components/SeatTable.vue'
+import { useSeatStore } from '@/stores/seats'
+import { usePersonStore } from '@/stores/person'
+import { storeToRefs } from 'pinia'
 
-const message = useMessage();
+const message = useMessage()
 
-const seatStore = useSeatStore();
-const personStore = usePersonStore();
+const seatStore = useSeatStore()
+const personStore = usePersonStore()
 
-const { allSeats, edgeSeatsIndex } = storeToRefs(seatStore);
-// const { allSeats } = storeToRefs(seatStore);
-const { allPerson } = storeToRefs(personStore);
+const { allSeats, edgeSeatsIndex } = storeToRefs(seatStore)
+const { allPerson } = storeToRefs(personStore)
 
-const showAddModal = ref(false);
-const showManager = ref(false);
-const formValue = ref({ input: '', names: [] });
+const showAddModal = ref(false)
+const showManager = ref(false)
+const formValue = ref({ input: '', names: [] })
 
 const parseName = () => {
   formValue.value.names =
       formValue.value.input
-          .split(/[,\s]+/)
-          .filter((element) => element !== undefined && element !== null && element !== "");
-};
+               .split(/[,\s]+/)
+               .filter((element) => element !== undefined && element !== null && element !== '')
+}
 
 const addPerson = () => {
-  allPerson.value.push(...formValue.value.names);
-  message.success("添加成功，共添加了" + formValue.value.names.length + "个");
-  showAddModal.value = false;
-  formValue.value.names = [];
-  updateSeats();
-};
-
-
-const parseEdgeSeatIndex = (x) => {
-  const l = x.value.length;
-  if (l === 0) return [];
-  let result = [];
-
-  if (Math.floor(l / 8) === 0)
-  {
-    for (let i = 0; i < l; i++)
-    {
-      result.push(i);
-    }
-    return result;
-  }
-
-  for (let i = 0; i < Math.floor(l / 8); i++)// 左右两侧
-  {
-    result.push(i * 8, i * 8 + 7);
-  }
-
-  for (let i = 0; i < 6; i++)// 最后一个满排
-  {
-    result.push(l - l % 8 - 7 + i);
-  }
-
-  if (l % 8 !== 0)
-  {
-    for (let i = 1; i <= l % 8; i++)// 真·最后一排
-    {
-      result.push(l - l % 8 - 1 + i);
-    }
-  }
-
-  return result;
-};
-
+  allPerson.value.push(...formValue.value.names)
+  message.success('添加成功，共添加了' + formValue.value.names.length + '个')
+  showAddModal.value = false
+  formValue.value.names = []
+  allSeats.value = allPerson.value.map((name, index) => {
+    return { name: name, index: index }
+  })
+  updateSeats()
+}
 
 const reSort = () => {
-  allSeats.value = shuffleArray(allSeats.value);
-  console.log(allSeats);
-};
+  allSeats.value = shuffleArray(allSeats.value)
+}
 
 function shuffleArray(array)
 {
-  const newArray = [...array];
+  const newArray = [...array]
   for (let i = newArray.length - 1; i > 0; i--)
   {
     const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
   }
-  return newArray;
+  return newArray
 }
 
 const updateSeats = () => {
-  allSeats.value = allPerson.value.map((name, index) => {
-    return { name: name, index: index };
-  });
-  edgeSeatsIndex.value = parseEdgeSeatIndex(allPerson);
-  allSeats.value.forEach(x => {
-    const coloredItem = edgeSeatsIndex.value.find(y => y === x.index);
-    if (coloredItem)
+  allSeats.value.forEach((x,index) => {
+    if (edgeSeatsIndex.value.find(y => y === index)||index===0)
     {
-      x.color = '#114514';
-    } else
-    {
-      console.log(x);
+      x.color = '#114514'
     }
-  });
-};
+    else
+    {
+      console.log(x)
+      x.color = null
+    }
+  })
 
-watch(allPerson, updateSeats);
+  allSeats.value = [...allSeats.value] //这里不是脱裤子放屁，是为了触发侦听器
+}
+
+watch(allPerson, updateSeats)
 watch(allSeats, () => {
-  console.log('seat changed');
-});
+  console.log('seat changed')
+})
 
 </script>
 
