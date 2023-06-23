@@ -1,12 +1,13 @@
 <template>
   <div>
     <div>
-      <SeatTable v-model:seats="allSeats"/>
+      <SeatTable v-model:seats="allSeats" :key="stKey" :coloring-edge="coloringEdgeSeats"/>
     </div>
     <div class="flex items-center justify-center mt-16 flex-col">
       <div>
         <NButtonGroup>
-          <n-button @click="updateSeats">刷新</n-button>
+          <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+          <n-button @click="updateSeats">重新着色</n-button>
           <NButton @click="reSort">随机排列座位</NButton>
           <n-button>重新排列座位</n-button>
           <NButton>保存</NButton>
@@ -67,23 +68,29 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, useMessage } from 'naive-ui'
+import { NButton, NModal, NCard, NForm, NFormItem, NInput, NDynamicTags, NSwitch, useMessage } from 'naive-ui'
 import SeatTable from '@/components/SeatTable.vue'
-import { useSeatStore } from '@/stores/seats'
+import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
+import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 
 const message = useMessage()
 
 const seatStore = useSeatStore()
 const personStore = usePersonStore()
+const settingStore = useSettingStore()
 
 const { allSeats, edgeSeatsIndex } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
+const { coloringEdgeSeats } = storeToRefs(settingStore)
+
+//const colorEdge = ref(false)
 
 const showAddModal = ref(false)
 const showManager = ref(false)
 const formValue = ref({ input: '', names: [] })
+const stKey = ref(Math.random())
 
 const parseName = () => {
   formValue.value.names =
@@ -97,9 +104,11 @@ const addPerson = () => {
   message.success('添加成功，共添加了' + formValue.value.names.length + '个')
   showAddModal.value = false
   formValue.value.names = []
-  allSeats.value = allPerson.value.map((name, index) => {
-    return { name: name, index: index }
-  })
+  allSeats.value.push(
+      allPerson.value.map((name, index) => {
+        return { name: name, index: index }
+      })
+  )
   updateSeats()
 }
 
@@ -115,23 +124,31 @@ function shuffleArray(array)
     const j = Math.floor(Math.random() * (i + 1));
     [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
   }
-  return newArray
+  return newArray.map((item, index) => {
+    return { name: item.name, index: index }
+  })
 }
 
-const updateSeats = () => {
-  allSeats.value.forEach((x,index) => {
-    if (edgeSeatsIndex.value.find(y => y === index)||index===0)
+const updateSeats = async () => {
+  stKey.value = Math.random() //刷新一下SeatTable组件
+  allSeats.value = [...allSeats.value] //这里不是脱裤子放屁，是为了触发侦听器
+}
+
+const repaint = (x) => {
+  let repaintColor = null
+  if (x) repaintColor = '#114514'
+  allSeats.value.forEach((x, index) => {
+    if (edgeSeatsIndex.value.find(y => y === index) || index === 0)
     {
-      x.color = '#114514'
+      x.color = repaintColor
     }
     else
     {
-      console.log(x)
+
       x.color = null
     }
   })
-
-  allSeats.value = [...allSeats.value] //这里不是脱裤子放屁，是为了触发侦听器
+  updateSeats()
 }
 
 watch(allPerson, updateSeats)
