@@ -1,8 +1,22 @@
-export const getRenderingList = (x=[], oldRenderingList = []) => {
+export const getRenderingList = (x = [], oldRenderingList = [], coloringEdge = false) => {
   let stopwatch = performance.now()
   if (x.length === 0) return []
 
-  if (oldRenderingList.length===0) //判断是否为拖动导致的更新
+  if (coloringEdge)
+  {
+    x.forEach((item, index) => {
+      if (parseEdgeSeatIndex(x.length).find(y => y === index) || index === 0)
+      {
+        item.color = '#114514'
+      }
+      else
+      {
+        item.color = null
+      }
+    })
+  }
+
+  if (oldRenderingList.length === 0) //判断是否为拖动导致的更新
   {
     console.log('Calculation mode')
     const result = x.map(item => ({
@@ -46,6 +60,7 @@ export const getRenderingList = (x=[], oldRenderingList = []) => {
       if (item.isSeat)
       {
         item.name = x[i].name
+        item.color = x[i].color
         i++
       }
     })
