@@ -10,6 +10,9 @@ const emit = defineEmits(['update', 'update:seats'])
 let onPropChanging = false
 let onRenderingChanging = false
 
+const coloring=ref(props.coloringEdge)
+console.log('coloring:'+coloring.value)
+
 const _seats = ref(props.seats)
 const seats = computed({
   get()
@@ -18,8 +21,11 @@ const seats = computed({
   },
   set(value)
   {
-    console.log('seats changed')
-    _seats.value = value
+
+    console.log('seats changed onRenderingChanging:' + onRenderingChanging)
+    _seats.value = value.map((item, index) => {
+      return { name: item.name, index: index }
+    })
     onPropChanging = true
     if (onRenderingChanging)
     {
@@ -27,13 +33,13 @@ const seats = computed({
     }
     else
     {
-      renderingList.value = getRenderingList(seats.value,renderingList.value)
+      renderingList.value = getRenderingList(seats.value, renderingList.value, coloring.value)
     }
     emit('update:seats', value)
   }
 })
 
-const _renderingList = ref(getRenderingList(seats.value))
+const _renderingList = ref(getRenderingList(seats.value,[],coloring.value))
 const renderingList = computed({
   get()
   {
@@ -41,8 +47,8 @@ const renderingList = computed({
   },
   set(value)
   {
-    console.log('renderingList changed')
-    _renderingList.value = value
+    console.log('renderingList changed onPropChanging:' + onPropChanging)
+    _renderingList.value = [...value]
     if (onPropChanging)
     {
       onPropChanging = false
@@ -57,8 +63,13 @@ const renderingList = computed({
 })
 
 watch(() => props.seats, () => {
-  console.log('props changed')
+  console.log('props.seats changed')
   seats.value = props.seats
+})
+
+watch(() => props.coloringEdge, () => {
+  console.log('props.coloringEdge changed')
+  coloring.value = props.coloringEdge
 })
 </script>
 
@@ -71,7 +82,7 @@ watch(() => props.seats, () => {
         <template #item="{ element }">
           <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
           <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
-          <NButton v-else size="large"  dashed class="should-not-be-dragged"></NButton>
+          <NButton v-else size="large" dashed class="should-not-be-dragged"></NButton>
         </template>
       </draggable>
     </div>
