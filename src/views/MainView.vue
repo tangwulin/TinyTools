@@ -1,13 +1,14 @@
 <template>
   <div>
     <div>
-      <SeatTable v-model:seats="allSeats" :key="stKey" :coloring-edge="coloringEdgeSeats"/>
+      <SeatTable v-model:seats="allSeats" v-model:rendering-list="oldRenderingList" :key="stKey"
+                 :coloring-edge="coloringEdgeSeats"/>
     </div>
     <div class="flex items-center justify-center mt-16 flex-col">
       <div>
         <NButtonGroup>
           <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
-          <n-button @click="updateSeats">重新着色</n-button>
+          <n-button @click="reloadSeatTable">重新着色</n-button>
           <NButton @click="reSort">随机排列座位</NButton>
           <n-button>重新排列座位</n-button>
           <NButton>保存</NButton>
@@ -81,17 +82,22 @@ const seatStore = useSeatStore()
 const personStore = usePersonStore()
 const settingStore = useSettingStore()
 
-const { allSeats, edgeSeatsIndex } = storeToRefs(seatStore)
+const { allSeats, oldRenderingList, edgeSeatsIndex } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
 const { coloringEdgeSeats } = storeToRefs(settingStore)
-
-//const colorEdge = ref(false)
 
 const showAddModal = ref(false)
 const showManager = ref(false)
 const formValue = ref({ input: '', names: [] })
 const stKey = ref(Math.random())
 
+if (allPerson.value.length !== 0 && allSeats.value.length === 0)
+{
+  allSeats.value = allPerson.value.map((name, index) => {
+    return { name: name, index: index }
+  })
+  console.log('seat has been initialized')
+}
 const parseName = () => {
   formValue.value.names =
       formValue.value.input
@@ -100,16 +106,18 @@ const parseName = () => {
 }
 
 const addPerson = () => {
+  console.log('添加了这' + formValue.value.names.length + '个人：' +  formValue.value.names )
   allPerson.value.push(...formValue.value.names)
   message.success('添加成功，共添加了' + formValue.value.names.length + '个')
   showAddModal.value = false
+  //console.log(allSeats)
+  formValue.value.names
+           .map((name, index) => {
+             return { name: name, index: index }
+           })
+           .forEach(item => allSeats.value.push(item))
   formValue.value.names = []
-  allSeats.value.push(
-      allPerson.value.map((name, index) => {
-        return { name: name, index: index }
-      })
-  )
-  updateSeats()
+  reloadSeatTable()
 }
 
 const reSort = () => {
@@ -129,14 +137,15 @@ function shuffleArray(array)
   })
 }
 
-const updateSeats = async () => {
+const reloadSeatTable = async () => {
   stKey.value = Math.random() //刷新一下SeatTable组件
   allSeats.value = [...allSeats.value] //这里不是脱裤子放屁，是为了触发侦听器
+  console.log('SeatTable has been reload')
 }
 
 const repaint = (x) => {
   let repaintColor = null
-  if (x) repaintColor = '#114514'
+  if (x) repaintColor = '#43a447'
   allSeats.value.forEach((x, index) => {
     if (edgeSeatsIndex.value.find(y => y === index) || index === 0)
     {
@@ -148,13 +157,17 @@ const repaint = (x) => {
       x.color = null
     }
   })
-  updateSeats()
+  reloadSeatTable()
 }
 
-watch(allPerson, updateSeats)
+watch(allPerson, reloadSeatTable)
 watch(allSeats, () => {
   console.log('seat changed')
 })
+watch(oldRenderingList, () => {
+  stKey.value = Math.random()
+})
+
 
 </script>
 

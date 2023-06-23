@@ -1,13 +1,16 @@
-export const getRenderingList = (x = [], oldRenderingList = [], coloringEdge = false) => {
+export const getRenderingList = (x = [], oldRenderingList = [], coloringEdge = false,forceUpdate=false) => {
   let stopwatch = performance.now()
   if (x.length === 0) return []
+/*  console.log(oldRenderingList)
+  console.log(x.length)*/
+  if(x.length!==parseRenderingListToSeats(oldRenderingList).length) forceUpdate=true
 
   if (coloringEdge)
   {
     x.forEach((item, index) => {
       if (parseEdgeSeatIndex(x.length).find(y => y === index) || index === 0)
       {
-        item.color = '#114514'
+        item.color = '#43a447'
       }
       else
       {
@@ -16,9 +19,10 @@ export const getRenderingList = (x = [], oldRenderingList = [], coloringEdge = f
     })
   }
 
-  if (oldRenderingList.length === 0) //判断是否为拖动导致的更新
+  if (oldRenderingList.length === 0||forceUpdate) //判断是否为拖动导致的更新
   {
     console.log('Calculation mode')
+    //console.log(oldRenderingList)
     const result = x.map(item => ({
       name: item.name, isSeat: true, index: item.index, color: item.color
     })).flatMap((value, index) => {
@@ -83,6 +87,15 @@ export const parseRenderingListToSeats = (x) => {
 export const parseEdgeSeatIndex = (l) => {
   if (l === 0) return []
   let result = []
+
+  if (l>1){
+    let x=7
+    if(!l>7)x=l
+    for (let i = 1; i < x; i++)
+    {
+      result.push(i)
+    }
+  }
 
   if (Math.floor(l / 8) === 0)
   {
