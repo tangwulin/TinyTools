@@ -18,10 +18,7 @@
 </template>
 
 <script>
-//import draggable from 'vuedraggable';
 import draggable from "vuedraggable-swap";
-
-/*import { ref } from "vue";*/
 import {VueDraggable} from 'vue-draggable-plus'
 
 export default {
