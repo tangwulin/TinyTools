@@ -1,4 +1,4 @@
-import { difference } from 'lodash-es'
+import difference from 'lodash/difference'
 
 export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge = false, forceUpdate = false) => {
   let stopwatch = performance.now()

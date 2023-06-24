@@ -2,7 +2,7 @@
   <div>
     <div id="target-div" class="m-auto w-2/3 ">
       <div class="flex items-center justify-center mb-4">
-        <n-button :size="'Large'">讲台</n-button>
+        <n-button :size='"large"'>讲台</n-button>
       </div>
       <div>
         <SeatTable v-model:seats="allSeats" v-model:rendering-list="oldRenderingList" :key="stKey"
@@ -16,6 +16,7 @@
       <div>
         <NButtonGroup>
           <n-tooltip trigger="hover">
+            <!--suppress VueUnrecognizedSlot -->
             <template #trigger>
               <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
             </template>
@@ -100,14 +101,14 @@ import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import {
   NButton,
   NButtonGroup,
-  NModal,
   NCard,
+  NDynamicTags,
   NForm,
   NFormItem,
-  NInput,
-  NDynamicTags,
-  NSwitch,
   NIcon,
+  NInput,
+  NModal,
+  NSwitch,
   NTooltip,
   useMessage
 } from 'naive-ui'
@@ -118,7 +119,8 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import html2canvas from 'html2canvas'
+//import html2canvas from 'html2canvas'
+//const importHtml2canvas = () => import('html2canvas')
 import { replaceArrayElements, shuffleArray } from '@/assets/seatHelper'
 
 const message = useMessage()
@@ -134,32 +136,38 @@ const { coloringEdgeSeats } = storeToRefs(settingStore)
 const formValue = ref({ input: '', names: [] })
 const showAddModal = ref(false)
 const showManager = ref(false)
-const currentDate = ref('');
-const currentTime = ref('');
+const currentDate = ref('')
+const currentTime = ref('')
 const loading = ref(false)
 const stKey = ref(Math.random())
 
 // 在组件挂载时开始更新日期和时间
 onMounted(() => {
-  updateDateTime();
-  setInterval(updateDateTime, 1000);
-});
+  updateDateTime()
+  setInterval(updateDateTime, 1000)
+})
 
 // 在组件卸载时停止更新日期和时间
 onUnmounted(() => {
-  clearInterval(updateDateTime);
-});
+  clearInterval(updateDateTime)
+})
 
 // 更新日期和时间
-function updateDateTime() {
-  const now = new Date();
-  const date = now.toLocaleDateString();
-  const time = now.toLocaleTimeString();
-  currentDate.value = date;
-  currentTime.value = time;
+function updateDateTime()
+{
+  const now = new Date()
+  const date = now.toLocaleDateString()
+  const time = now.toLocaleTimeString()
+  currentDate.value = date
+  currentTime.value = time
 }
-const worker = new Worker('src/assets/seatWorker.js', { type: 'module' })
-const save = () => {
+
+//const worker = new Worker('src/assets/seatWorker.js', { type: 'module' })
+const save = async () => {
+  async function loadModule()
+  {
+    return await import('html2canvas');
+  }
 
   const div = document.getElementById('target-div')
   const canvas = document.createElement('canvas')
@@ -171,7 +179,9 @@ const save = () => {
   canvas.style.height = h + 'px'
   const context = canvas.getContext('2d')
   context.scale(2, 2)
-  html2canvas(div, { canvas: canvas })
+  const html2canvas = await loadModule();
+
+  html2canvas.default(div, { canvas: canvas })
       .then(canvas => {
         // 将 Canvas 转换为图像数据 URL
         const imageDataUrl = canvas.toDataURL()
@@ -181,7 +191,7 @@ const save = () => {
         link.href = imageDataUrl
 
         // 设置下载属性
-        link.download = 'seat-'+currentDate.value+'-'+currentTime.value+'.png'
+        link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
 
         // 模拟点击下载链接
         link.click()
@@ -286,10 +296,10 @@ watch(oldRenderingList, () => {
   stKey.value = Math.random()
 })
 
-worker.onmessage = function (event) {
+/*worker.onmessage = function (event) {
   console.log('接收到Web Worker的消息:', event.data)
   //allSeats.value=event.data
-}
+}*/
 
 </script>
 
