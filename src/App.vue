@@ -5,13 +5,16 @@ import MainView from "@/views/MainView.vue";
 </script>
 <template>
   <n-message-provider>
-<!--    <NSpace>
-      <RouterLink to="/">MainView</RouterLink>
-      <RouterLink to="/about">About</RouterLink>
-      <RouterLink to="/seat">Seat</RouterLink>
-    </NSpace>
-    <RouterView />-->
     <MainView/>
   </n-message-provider>
 </template>
 
+<style>
+@font-face {
+  font-family: 'CustomFont';
+  src: url('@/assets/fonts/zh-cn.ttf') format('truetype');
+}
+body {
+  font-family: 'CustomFont', sans-serif;
+}
+</style>
