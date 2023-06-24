@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "tauri build": "pnpm tauri build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
@@ -21,6 +22,7 @@
     "vuedraggable-swap": "4.1.0"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^1.4.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.39.0",

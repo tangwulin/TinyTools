@@ -39,6 +39,20 @@
             </template>
             重新排列座位
           </n-button>
+          <n-tooltip trigger="hover">
+            <!--suppress VueUnrecognizedSlot -->
+            <template #trigger>
+              <n-button @click="rollSeats" :loading="loading">
+                <template #icon>
+                  <n-icon>
+                    <RefreshDot/>
+                  </n-icon>
+                </template>
+                按规则Roll座位
+              </n-button>
+            </template>
+            随机5次再将原始位置按“重新排列座位”的做法排列（虚晃一枪）
+          </n-tooltip>
           <n-button @click="save">保存</n-button>
         </NButtonGroup>
       </div>
@@ -166,7 +180,7 @@ function updateDateTime()
 const save = async () => {
   async function loadModule()
   {
-    return await import('html2canvas');
+    return await import('html2canvas')
   }
 
   const div = document.getElementById('target-div')
@@ -179,27 +193,27 @@ const save = async () => {
   canvas.style.height = h + 'px'
   const context = canvas.getContext('2d')
   context.scale(2, 2)
-  const html2canvas = await loadModule();
+  const html2canvas = await loadModule()
 
   html2canvas.default(div, { canvas: canvas })
-      .then(canvas => {
-        // 将 Canvas 转换为图像数据 URL
-        const imageDataUrl = canvas.toDataURL()
-        //console.log(imageDataUrl)
-        // 创建一个 <a> 元素
-        const link = document.createElement('a')
-        link.href = imageDataUrl
+             .then(canvas => {
+               // 将 Canvas 转换为图像数据 URL
+               const imageDataUrl = canvas.toDataURL()
+               //console.log(imageDataUrl)
+               // 创建一个 <a> 元素
+               const link = document.createElement('a')
+               link.href = imageDataUrl
 
-        // 设置下载属性
-        link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
+               // 设置下载属性
+               link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
 
-        // 模拟点击下载链接
-        link.click()
-      })
-      .catch(error => {
-        // 处理截图错误
-        console.error(error)
-      })
+               // 模拟点击下载链接
+               link.click()
+             })
+             .catch(error => {
+               // 处理截图错误
+               console.error(error)
+             })
   /*// 获取要截图的 <div> 元素
   const targetDiv = document.getElementById('target-div')
 
@@ -260,6 +274,19 @@ const reSort = async () => {
   allSeats.value = shuffleArray(allSeats.value)
   await nextTick()
   setTimeout(() => {loading.value = false}, 50)
+}
+
+const rollSeats = async () => {
+  loading.value = true
+  await nextTick()
+  const originSeats = [...allSeats.value]
+  for (let i = 0; i < 5; i++)
+  {
+    allSeats.value = shuffleArray(allSeats.value)
+    await nextTick()
+  }
+  allSeats.value = replaceArrayElements(originSeats).map((item, index) => {return { name: item.name, index: index }})
+  setTimeout(() => {loading.value = false}, 500)
 }
 
 const replaceSeats = async () => {
