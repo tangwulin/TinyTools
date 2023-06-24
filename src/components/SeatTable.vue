@@ -4,8 +4,13 @@ import draggable from 'vuedraggable-swap'
 import { computed, ref, watch } from 'vue'
 import { getRenderingList, parseRenderingListToSeats } from '@/assets/seatHelper'
 
-const props = defineProps(['seats', 'renderingList', 'coloringEdge'])
-const emit = defineEmits(['update', 'update:seats', 'update:renderingList'])
+const props = defineProps(['seats', 'renderingList', 'coloringEdge','rendering'])
+const emit = defineEmits(['update', 'update:seats', 'update:renderingList','update:rendering'])
+
+const rendering=ref(props.rendering)
+
+rendering.value=true
+emit('update:rendering',true) //通知外面正在渲染
 
 let onPropChanging = false
 let onRenderingChanging = false
@@ -58,7 +63,10 @@ const renderingList = computed({
   {
     //console.log(oldRenderingList)
     //console.log(_renderingList)
-
+    console.log('get renderingList')
+    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+    rendering.value=false //别骂哥们，因为真不知道怎么写
+    emit('update:rendering',false)
     return _renderingList.value
   },
   set(value)
@@ -93,13 +101,13 @@ watch(() => props.coloringEdge, () => {
 <template>
   <div>
     <div class="flex items-center justify-center h-1/2">
-      <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true" animation="50"
-                 class="text-center w-2/3 h-1/2 grid grid-cols-11" item-key="id">
+      <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true"
+                 class="text-center h-1/2 grid grid-cols-11" item-key="id">
         <!--suppress VueUnrecognizedSlot -->
         <template #item="{ element }">
           <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
           <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
-          <NButton v-else size="large" dashed class="should-not-be-dragged"></NButton>
+          <NButton v-else size="large" dashed :focusable="false" class="should-not-be-dragged"></NButton>
         </template>
       </draggable>
     </div>
