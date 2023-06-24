@@ -4,14 +4,20 @@ import draggable from 'vuedraggable-swap'
 import { computed, ref, watch } from 'vue'
 import { getRenderingList, parseRenderingListToSeats } from '@/assets/seatHelper'
 
-const props = defineProps(['seats', 'coloringEdge'])
-const emit = defineEmits(['update', 'update:seats'])
+const props = defineProps(['seats', 'renderingList', 'coloringEdge','rendering'])
+const emit = defineEmits(['update', 'update:seats', 'update:renderingList','update:rendering'])
+
+const rendering=ref(props.rendering)
+
+rendering.value=true
+emit('update:rendering',true) //通知外面正在渲染
 
 let onPropChanging = false
 let onRenderingChanging = false
 
-const coloring=ref(props.coloringEdge)
-console.log('coloring:'+coloring.value)
+const oldRenderingList = ref(props.renderingList)
+const coloring = ref(props.coloringEdge)
+console.log('coloring:' + coloring.value)
 
 const _seats = ref(props.seats)
 const seats = computed({
@@ -38,17 +44,36 @@ const seats = computed({
     emit('update:seats', value)
   }
 })
-
-const _renderingList = ref(getRenderingList(seats.value,[],coloring.value))
+//console.log(getRenderingList(seats.value, [], coloring.value))
+let oldRenderingListInitialized = false
+if (oldRenderingList.value.length === 0 &&seats.value.length!==0)
+{
+  //console.log(oldRenderingList.value)
+  if (!oldRenderingListInitialized) //不要问为什么不提出来到外面那层if，问就是不行
+  {
+    oldRenderingList.value = getRenderingList(seats.value, [], coloring.value)
+    emit('update:renderingList', oldRenderingList.value)
+    console.log('oldRenderingList updated')
+  }
+  oldRenderingListInitialized = true
+}
+const _renderingList = ref(getRenderingList(seats.value, oldRenderingList.value, coloring.value))
 const renderingList = computed({
   get()
   {
+    //console.log(oldRenderingList)
+    //console.log(_renderingList)
+    console.log('get renderingList')
+    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+    rendering.value=false //别骂哥们，因为真不知道怎么写
+    emit('update:rendering',false)
     return _renderingList.value
   },
   set(value)
   {
     console.log('renderingList changed onPropChanging:' + onPropChanging)
     _renderingList.value = [...value]
+    oldRenderingList.value = [...value]
     if (onPropChanging)
     {
       onPropChanging = false
@@ -58,7 +83,7 @@ const renderingList = computed({
       onRenderingChanging = true
       seats.value = parseRenderingListToSeats(value)
     }
-
+    emit('update:renderingList', value)
   }
 })
 
@@ -76,13 +101,13 @@ watch(() => props.coloringEdge, () => {
 <template>
   <div>
     <div class="flex items-center justify-center h-1/2">
-      <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true" animation="50"
-                 class="text-center w-2/3 h-1/2 grid grid-cols-11" item-key="id">
+      <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true"
+                 class="text-center h-1/2 grid grid-cols-11" item-key="id">
         <!--suppress VueUnrecognizedSlot -->
         <template #item="{ element }">
           <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
           <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
-          <NButton v-else size="large" dashed class="should-not-be-dragged"></NButton>
+          <NButton v-else size="large" dashed :focusable="false" class="should-not-be-dragged"></NButton>
         </template>
       </draggable>
     </div>

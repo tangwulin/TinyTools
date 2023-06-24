@@ -5,7 +5,9 @@ import {parseEdgeSeatIndex} from '@/assets/seatHelper'
 export const useSeatStore = defineStore('seat', () => {
         const allSeats = ref([])
         const edgeSeatsIndex = computed(()=>parseEdgeSeatIndex(allSeats.value.length))
-        return { allSeats, edgeSeatsIndex }
+
+        const oldRenderingList =ref([])
+        return { allSeats, edgeSeatsIndex, oldRenderingList }
     },
     {
         persist: true,
