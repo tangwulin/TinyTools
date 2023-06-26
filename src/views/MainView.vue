@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div id="target-div" class="m-auto w-2/3 ">
+  <div class="flex items-center justify-center flex-col w-max h-auto m-auto">
+    <div id="target-div" class="m-auto md:w-fit ">
       <div class="flex items-center justify-center mb-4">
         <n-button :size='"large"'>讲台</n-button>
       </div>
@@ -13,48 +13,46 @@
       </div>
     </div>
     <div class="flex items-center justify-center mt-16 flex-col">
-      <div>
-        <NButtonGroup>
-          <n-tooltip trigger="hover">
-            <!--suppress VueUnrecognizedSlot -->
-            <template #trigger>
-              <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
-            </template>
-            边缘位置高亮
-          </n-tooltip>
-          <n-button @click="reloadSeatTable">重载座位表组件</n-button>
-          <n-button @click="reSort" :loading="loading">
-            <template #icon>
-              <n-icon>
-                <Refresh/>
-              </n-icon>
-            </template>
-            随机排列座位
-          </n-button>
-          <n-button @click="replaceSeats" :loading="loading">
-            <template #icon>
-              <n-icon>
-                <RefreshDot/>
-              </n-icon>
-            </template>
-            重新排列座位
-          </n-button>
-          <n-tooltip trigger="hover">
-            <!--suppress VueUnrecognizedSlot -->
-            <template #trigger>
-              <n-button @click="rollSeats" :loading="loading">
-                <template #icon>
-                  <n-icon>
-                    <RefreshDot/>
-                  </n-icon>
-                </template>
-                按规则Roll座位
-              </n-button>
-            </template>
-            随机5次再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
-          </n-tooltip>
-          <n-button @click="save">保存</n-button>
-        </NButtonGroup>
+      <div class="flex items-center justify-center flex-col md:flex-row">
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+          </template>
+          边缘位置高亮
+        </n-tooltip>
+        <n-button @click="reloadSeatTable">重载座位表组件</n-button>
+        <n-button @click="reSort" :loading="loading">
+          <template #icon>
+            <n-icon>
+              <Refresh/>
+            </n-icon>
+          </template>
+          随机排列座位
+        </n-button>
+        <n-button @click="replaceSeats" :loading="loading">
+          <template #icon>
+            <n-icon>
+              <RefreshDot/>
+            </n-icon>
+          </template>
+          重新排列座位
+        </n-button>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-button @click="rollSeats" :loading="loading">
+              <template #icon>
+                <n-icon>
+                  <RefreshDot/>
+                </n-icon>
+              </template>
+              按规则Roll座位
+            </n-button>
+          </template>
+          随机5次再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
+        </n-tooltip>
+        <n-button @click="save">保存</n-button>
       </div>
       <div>
         <n-button-group>
@@ -285,22 +283,27 @@ const rollSeats = async () => {
     await nextTick()
     console.log(1)
   }, 500)*/
-  let count = 0; // 计数器
+  let count = 0 // 计数器
 
   const intervalId = setInterval(async () => {
     // 执行某个操作
     allSeats.value = shuffleArray(allSeats.value)
     await nextTick()
 
-    count++; // 增加计数器
+    count++ // 增加计数器
 
     if (count === 6)
     {
-      clearInterval(intervalId); // 达到执行次数后清除定时器
+      clearInterval(intervalId) // 达到执行次数后清除定时器
       setTimeout(() => {loading.value = false}, 500)
-      allSeats.value = replaceArrayElements(originSeats).map((item, index) => {return { name: item.name, index: index }})
+      allSeats.value = replaceArrayElements(originSeats).map((item, index) => {
+        return {
+          name: item.name,
+          index: index
+        }
+      })
     }
-  }, 500);
+  }, 500)
 }
 
 const replaceSeats = async () => {
