@@ -87,10 +87,12 @@
             :label-width="80"
             :model="formValue"
         >
-          <n-form-item label="请在下方输入姓名，多个请以空格或英文逗号分割" path="input">
-            <n-text>当前已检测到：{{ formValue.names.length }}个</n-text>
-            <n-input v-model:value="formValue.input" type="textarea" placeholder="张三,李四,王五……"
-                     @blur="parseName" @focus="parseName" @keyup="parseName"/>
+          <n-form-item label="请在下方输入姓名，多个请以空格或英文逗号分割" path="input" >
+            <div class="flex flex-col w-full">
+              <n-text>当前已检测到：{{ formValue.names.length }}个</n-text>
+              <n-input v-model:value="formValue.input" type="textarea" placeholder="张三,李四,王五……"
+                       @blur="parseName" @focus="parseName" @keyup="parseName"/>
+            </div>
           </n-form-item>
           <n-form-item label="解析到的姓名" path="names">
             <n-dynamic-tags v-model:value="formValue.names"/>
@@ -263,6 +265,7 @@ const addPerson = () => {
            })
            .forEach(item => allSeats.value.push(item))
   formValue.value.names = []
+  formValue.value.input=""
   reloadSeatTable()
 }
 
