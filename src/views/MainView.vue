@@ -51,7 +51,7 @@
                 按规则Roll座位
               </n-button>
             </template>
-            随机5次再将原始位置按“重新排列座位”的做法排列（虚晃一枪）
+            随机5次再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
           </n-tooltip>
           <n-button @click="save">保存</n-button>
         </NButtonGroup>
@@ -280,13 +280,27 @@ const rollSeats = async () => {
   loading.value = true
   await nextTick()
   const originSeats = [...allSeats.value]
-  for (let i = 0; i < 5; i++)
-  {
+  /*const timer = setTimeout( () => {
     allSeats.value = shuffleArray(allSeats.value)
     await nextTick()
-  }
-  allSeats.value = replaceArrayElements(originSeats).map((item, index) => {return { name: item.name, index: index }})
-  setTimeout(() => {loading.value = false}, 500)
+    console.log(1)
+  }, 500)*/
+  let count = 0; // 计数器
+
+  const intervalId = setInterval(async () => {
+    // 执行某个操作
+    allSeats.value = shuffleArray(allSeats.value)
+    await nextTick()
+
+    count++; // 增加计数器
+
+    if (count === 6)
+    {
+      clearInterval(intervalId); // 达到执行次数后清除定时器
+      setTimeout(() => {loading.value = false}, 500)
+      allSeats.value = replaceArrayElements(originSeats).map((item, index) => {return { name: item.name, index: index }})
+    }
+  }, 500);
 }
 
 const replaceSeats = async () => {
