@@ -56,10 +56,12 @@
       </div>
       <div>
         <n-button-group>
+          <n-button @click="showSetting=true">设置</n-button>
           <n-button @click="showManager=true">人员管理</n-button>
           <n-button @click="showAddModal=true">增加人员</n-button>
         </n-button-group>
       </div>
+      <component :is="NButton"/>
     </div>
 
     <n-modal v-model:show="showManager">
@@ -87,7 +89,7 @@
             :label-width="80"
             :model="formValue"
         >
-          <n-form-item label="请在下方输入姓名，多个请以空格或英文逗号分割" path="input" >
+          <n-form-item label="请在下方输入姓名，多个请以空格或英文逗号分割" path="input">
             <div class="flex flex-col w-full">
               <n-text>当前已检测到：{{ formValue.names.length }}个</n-text>
               <n-input v-model:value="formValue.input" type="textarea" placeholder="张三,李四,王五……"
@@ -107,6 +109,36 @@
         </template>
       </n-card>
     </n-modal>
+    <n-modal v-model:show="showSetting" style="width: 60%">
+      <n-card
+          style="width: 50%"
+          title="设置"
+          :bordered="true"
+          size="small"
+          closable
+          @close="showSetting=false"
+      >
+        <div class="flex flex-row justify-items-start" style="height: 60vh">
+          <div class="px-2 pt-2 mr-2 bg-gray-200 rounded">
+            <n-list class="flex flex-col justify-center w-1/4 min-w-0">
+              <n-list-item v-for="item in settings" :key="item.name">
+                <n-button text tag="a" @click="handleSetting(item)">{{ item.name }}</n-button>
+              </n-list-item>
+            </n-list>
+          </div>
+
+          <n-layout :key="scKey">
+            <n-layout-header>{{ currentSetting.name }}</n-layout-header>
+            <n-layout-content>
+              <component :is="currentSetting.component" />
+            </n-layout-content>
+          </n-layout>
+        </div>
+      </n-card>
+    </n-modal>
+    <div class="fixed bottom-0 right-0 mb-2 mr-2">
+      <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=2026224214.mp3"></audio>
+    </div>
   </div>
 </template>
 
@@ -124,17 +156,18 @@ import {
   NModal,
   NSwitch,
   NTooltip,
+  NLayout,
+  NLayoutContent,
   useMessage
 } from 'naive-ui'
-//import { RefreshRound as RefreshIcon } from '@vicons/material'
 import { Refresh, RefreshDot } from '@vicons/tabler'
 import SeatTable from '@/components/SeatTable.vue'
+import BgmSetting from '@/components/BgmSetting.vue'
+import PersonManage from '@/components/PersonManage.vue'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-//import html2canvas from 'html2canvas'
-//const importHtml2canvas = () => import('html2canvas')
 import { replaceArrayElements, shuffleArray } from '@/assets/seatHelper'
 
 const message = useMessage()
@@ -150,11 +183,20 @@ const { coloringEdgeSeats } = storeToRefs(settingStore)
 const formValue = ref({ input: '', names: [] })
 const showAddModal = ref(false)
 const showManager = ref(false)
+const showSetting = ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 const loading = ref(false)
 const stKey = ref(Math.random())
+const scKey = ref(Math.random())
 
+let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
+const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
+
+const handleSetting = (x) => {
+  currentSetting = x
+  scKey.value = Math.random()
+}
 // 在组件挂载时开始更新日期和时间
 onMounted(() => {
   updateDateTime()
@@ -265,7 +307,7 @@ const addPerson = () => {
            })
            .forEach(item => allSeats.value.push(item))
   formValue.value.names = []
-  formValue.value.input=""
+  formValue.value.input = ''
   reloadSeatTable()
 }
 
