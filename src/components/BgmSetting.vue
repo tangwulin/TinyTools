@@ -104,7 +104,7 @@ const initializeMusic = () => {
   ]
 }
 
-if (bgms.value.length === 0 && !isMusicInitialized)
+if (bgms.value.length === 0 && !isMusicInitialized.value)
 {
   isMusicInitialized.value = true
   initializeMusic()
