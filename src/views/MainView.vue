@@ -58,7 +58,7 @@
         <n-button-group>
           <n-button @click="showSetting=true">设置</n-button>
           <n-button @click="showManager">人员管理</n-button>
-<!--          <n-button @click="showManager">增加人员</n-button>-->
+          <n-button @click="showMultiAddModal">增加人员</n-button>
         </n-button-group>
       </div>
     </div>
@@ -85,7 +85,7 @@
           <n-layout :key="scKey">
             <n-layout-header>{{ currentSetting.name }}</n-layout-header>
             <n-layout-content>
-              <component :is="currentSetting.component"/>
+              <component :is="currentSetting.component" :showAddModal="showAddModal"/>
             </n-layout-content>
           </n-layout>
         </div>
@@ -132,6 +132,7 @@ const { allPerson } = storeToRefs(personStore)
 const { coloringEdgeSeats } = storeToRefs(settingStore)
 
 const showSetting = ref(false)
+const showAddModal=ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 const loading = ref(false)
@@ -143,6 +144,11 @@ const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '
 const showManager = () => {
   currentSetting = { name: '💁人员管理', component: PersonManage }
   showSetting.value=true
+}
+const showMultiAddModal = () => {
+  currentSetting = { name: '💁人员管理', component: PersonManage }
+  showSetting.value=true
+  showAddModal.value=true
 }
 const handleSetting = (x) => {
   currentSetting = x

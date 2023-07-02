@@ -5,12 +5,19 @@ import { storeToRefs } from 'pinia'
 import { usePersonStore } from '@/stores/person'
 import { useSeatStore } from '@/stores/seat'
 
+const props = defineProps(['showAddModal'])
+
 const personStore = usePersonStore()
-const seatStore=useSeatStore()
+const seatStore = useSeatStore()
 const { allPerson } = storeToRefs(personStore)
 const { allSeats } = storeToRefs(seatStore)
 
-const showAddModal=ref(false)
+const showAddModal = ref(props.showAddModal || false)
+if (showAddModal.value)
+{
+  showAddModal.value = false
+  setTimeout(() => {showAddModal.value = true}, 100)
+}
 const formValue = ref({ input: '', names: [] })
 
 const message = useMessage()
