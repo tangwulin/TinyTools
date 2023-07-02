@@ -41,7 +41,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="rollSeats" :loading="loading">
+            <n-button @click="rollSeats(5)" :loading="loading">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -51,6 +51,32 @@
             </n-button>
           </template>
           随机5次再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
+        </n-tooltip>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-popconfirm
+                :negative-text="null"
+                @positive-click="rollSeats(5)"
+            >
+              <!--suppress VueUnrecognizedSlot -->
+              <template #trigger>
+                <n-button @click="" :loading="loading">
+                  <template #icon>
+                    <n-icon>
+                      <RefreshDot/>
+                    </n-icon>
+                  </template>
+                  玩把大的！
+                </n-button>
+              </template>
+              <div class="flex flex-row items-center">
+                次数：
+                <n-input-number clearable :precision="0" :value="times"/>
+              </div>
+            </n-popconfirm>
+          </template>
+          与”按规则Roll座位“一样，只不过次数可以改
         </n-tooltip>
         <n-button @click="save">保存</n-button>
       </div>
@@ -119,7 +145,7 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements, shuffleArray } from '@/assets/seatHelper'
+import { replaceArrayElements, shuffleArray } from '@/assets/script/seatHelper'
 
 const message = useMessage()
 
@@ -129,35 +155,51 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms } = storeToRefs(settingStore)
 
 const showSetting = ref(false)
-const showAddModal=ref(false)
+const showAddModal = ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 const loading = ref(false)
+const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
 
 let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
 const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
+
 const showManager = () => {
   currentSetting = { name: '💁人员管理', component: PersonManage }
-  showSetting.value=true
+  showSetting.value = true
 }
 const showMultiAddModal = () => {
   currentSetting = { name: '💁人员管理', component: PersonManage }
-  showSetting.value=true
-  showAddModal.value=true
+  showSetting.value = true
+  showAddModal.value = true
 }
 const handleSetting = (x) => {
   currentSetting = x
   scKey.value = Math.random()
 }
+
+const onlyAllowNumber = (value) => !value || /^\d+$/.test(value)
+
+const playBgm = (bgm) => {
+  const player = document.getElementById('player')
+  player.src = bgm.url
+  player.currentTime = bgm.offset
+  message.info('正在播放：' + bgm.name)
+  console.log('正在播放：' + bgm.name)
+  player.play()
+}
+
 // 在组件挂载时开始更新日期和时间
 onMounted(() => {
   updateDateTime()
   setInterval(updateDateTime, 1000)
+  const player = document.getElementById('player')
+  player.volume = 0.6 //关 音 菩 萨
 })
 
 // 在组件卸载时停止更新日期和时间
@@ -231,25 +273,24 @@ const reSort = async () => {
   setTimeout(() => {loading.value = false}, 50)
 }
 
-const rollSeats = async () => {
+const rollSeats = async (x) => {
   loading.value = true
   await nextTick()
   const originSeats = [...allSeats.value]
-  /*const timer = setTimeout( () => {
-    allSeats.value = shuffleArray(allSeats.value)
-    await nextTick()
-    console.log(1)
-  }, 500)*/
   let count = 0 // 计数器
+
+  const i = Math.floor(Math.random() * bgms.value.length)
+  console.log(i)
+  const bgm = bgms.value[i]
+  playBgm(bgm)
 
   const intervalId = setInterval(async () => {
     // 执行某个操作
     allSeats.value = shuffleArray(allSeats.value)
     await nextTick()
-
     count++ // 增加计数器
 
-    if (count === 6)
+    if (count === (x + 1))
     {
       clearInterval(intervalId) // 达到执行次数后清除定时器
       setTimeout(() => {loading.value = false}, 500)
@@ -259,6 +300,8 @@ const rollSeats = async () => {
           index: index
         }
       })
+      const player = document.getElementById('player')
+      player.pause()
     }
   }, 500)
 }
