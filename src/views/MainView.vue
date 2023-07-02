@@ -13,31 +13,30 @@
       </div>
     </div>
     <div class="flex items-center justify-center mt-8 flex-col">
-      <div class="flex items-center justify-center flex-col md:flex-row">
+      <div class="flex items-center justify-center flex-col md:flex-row flex-wrap md:w-3/5">
+
+          <n-tooltip trigger="hover" >
+            <!--suppress VueUnrecognizedSlot -->
+            <template #trigger>
+              <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+            </template>
+            边缘位置高亮
+          </n-tooltip>
+        <n-button @click="reloadSeatTable" :disabled="loading">重载座位表组件</n-button>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+            <n-button @click="replaceSeats" :loading="loading">
+              <template #icon>
+                <n-icon>
+                  <RefreshDot/>
+                </n-icon>
+              </template>
+              重新排列座位
+            </n-button>
           </template>
-          边缘位置高亮
+          ”优化“后的排座位方式，不会连续两次抽到边缘位置
         </n-tooltip>
-        <n-button @click="reloadSeatTable">重载座位表组件</n-button>
-        <n-button @click="reSort" :loading="loading">
-          <template #icon>
-            <n-icon>
-              <Refresh/>
-            </n-icon>
-          </template>
-          随机排列座位
-        </n-button>
-        <n-button @click="replaceSeats" :loading="loading">
-          <template #icon>
-            <n-icon>
-              <RefreshDot/>
-            </n-icon>
-          </template>
-          重新排列座位
-        </n-button>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
@@ -55,9 +54,23 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
+            <n-button @click="reSort" :loading="loading">
+              <template #icon>
+                <n-icon>
+                  <Refresh/>
+                </n-icon>
+              </template>
+              随机排列座位
+            </n-button>
+          </template>
+          真·随机排列座位，六亲不认的那种
+        </n-tooltip>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
             <n-popconfirm
                 :negative-text="null"
-                @positive-click="rollSeats(5)"
+                @positive-click="rollSeats(times)"
             >
               <!--suppress VueUnrecognizedSlot -->
               <template #trigger>
@@ -72,13 +85,13 @@
               </template>
               <div class="flex flex-row items-center">
                 次数：
-                <n-input-number clearable :precision="0" :value="times"/>
+                <n-input-number clearable :precision="0" v-model:value="times"/>
               </div>
             </n-popconfirm>
           </template>
           与”按规则Roll座位“一样，只不过次数可以改
         </n-tooltip>
-        <n-button @click="save">保存</n-button>
+        <n-button @click="save" :disabled="loading">保存</n-button>
       </div>
       <div>
         <n-button-group>
@@ -182,8 +195,6 @@ const handleSetting = (x) => {
   currentSetting = x
   scKey.value = Math.random()
 }
-
-const onlyAllowNumber = (value) => !value || /^\d+$/.test(value)
 
 const playBgm = (bgm) => {
   const player = document.getElementById('player')
