@@ -3,7 +3,9 @@ import { ref } from 'vue'
 
 export const useSettingStore = defineStore('setting', () => {
     const coloringEdgeSeats = ref(false)
-    return { coloringEdgeSeats }
+    const bgms = ref([])
+    const isMusicInitialized = ref(false)
+    return { coloringEdgeSeats, bgms,isMusicInitialized }
   },
   {
     persist: true
