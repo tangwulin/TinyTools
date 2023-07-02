@@ -1,3 +1,4 @@
+<!--suppress SpellCheckingInspection, SpellCheckingInspection -->
 <script setup>
 import { computed, h, ref } from 'vue'
 import { PlaylistAdd, Refresh } from '@vicons/tabler'
@@ -8,7 +9,7 @@ import { storeToRefs } from 'pinia'
 
 const message = useMessage()
 const setting = useSettingStore()
-const { bgms, isMusicInitialized } = storeToRefs(setting)
+const { bgms, isBGMInitialized } = storeToRefs(setting)
 
 const showEditModal = ref(false)
 const formData = ref({ name: '', url: '', offset: 0, uniqueId: '' })
@@ -104,9 +105,9 @@ const initializeMusic = () => {
   ]
 }
 
-if (bgms.value.length === 0 && !isMusicInitialized.value)
+if (bgms.value.length === 0 && !isBGMInitialized.value)
 {
-  isMusicInitialized.value = true
+  isBGMInitialized.value = true
   initializeMusic()
 }
 
