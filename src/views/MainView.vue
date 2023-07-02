@@ -124,7 +124,7 @@
           <n-layout :key="scKey">
             <n-layout-header>{{ currentSetting.name }}</n-layout-header>
             <n-layout-content>
-              <component :is="currentSetting.component" :showAddModal="showAddModal"/>
+              <component :is="currentSetting.component" v-model:showAddModal="showAddModal"/>
             </n-layout-content>
           </n-layout>
         </div>

@@ -6,6 +6,7 @@ import { usePersonStore } from '@/stores/person'
 import { useSeatStore } from '@/stores/seat'
 
 const props = defineProps(['showAddModal'])
+const emit = defineEmits(['update:showAddModal'])
 
 const personStore = usePersonStore()
 const seatStore = useSeatStore()
@@ -50,14 +51,17 @@ const addPerson = () => {
   <div>
     <n-dynamic-tags v-model:value="allPerson" @update:value="message.success('修改成功')"/>
     <n-button type="success" @click="showAddModal=true">批量添加</n-button>
-    <n-modal v-model:show="showAddModal">
+    <n-modal v-model:show="showAddModal" :mask-closable="false">
       <n-card
           style="width: 50%"
           title="批量增加人员"
           :bordered="true"
           size="huge"
           closable
-          @close="showAddModal=false"
+          @close="() => {
+            showAddModal=false
+            emit('update:showAddModal',false)
+          }"
       >
         <n-form
             :label-width="80"
