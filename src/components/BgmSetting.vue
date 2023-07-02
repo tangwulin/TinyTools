@@ -98,7 +98,7 @@ const initializeMusic = () => {
     {
       name: 'Liyue 璃月',
       url: 'https://music.163.com/song/media/outer/url?id=1492276411.mp3',
-      offset: 155,
+      offset: 154.5,
       uniqueId: generateUniqueId()
     },
   ]
