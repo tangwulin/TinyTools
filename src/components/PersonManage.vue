@@ -12,7 +12,7 @@ const seatStore = useSeatStore()
 const { allPerson } = storeToRefs(personStore)
 const { allSeats } = storeToRefs(seatStore)
 
-const showAddModal = ref(props.showAddModal || false)
+const showAddModal = ref(!!props.showAddModal || false)
 if (showAddModal.value)
 {
   showAddModal.value = false
