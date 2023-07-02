@@ -1,4 +1,4 @@
-import { replaceArrayElements } from '@/assets/seatHelper.js'
+import { replaceArrayElements } from '@/assets/script/seatHelper.js'
 //importScripts('seatHelper.js')
 
 self.onmessage = (event) => {
