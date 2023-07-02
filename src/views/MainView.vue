@@ -8,40 +8,39 @@
         <SeatTable v-model:seats="allSeats" v-model:rendering-list="oldRenderingList" :key="stKey"
                    :coloring-edge="coloringEdgeSeats"/>
       </div>
-      <div class="flex justify-center">
+      <div class="flex justify-center mt-4">
         <p>{{ currentDate }}--{{ currentTime }}</p>
       </div>
     </div>
-    <div class="flex items-center justify-center mt-16 flex-col">
-      <div class="flex items-center justify-center flex-col md:flex-row">
+    <div class="flex items-center justify-center mt-8 flex-col">
+      <div class="flex items-center justify-center flex-col md:flex-row flex-wrap md:w-3/5">
+
+          <n-tooltip trigger="hover" >
+            <!--suppress VueUnrecognizedSlot -->
+            <template #trigger>
+              <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+            </template>
+            边缘位置高亮
+          </n-tooltip>
+        <n-button @click="reloadSeatTable" :disabled="loading">重载座位表组件</n-button>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+            <n-button @click="replaceSeats" :loading="loading">
+              <template #icon>
+                <n-icon>
+                  <RefreshDot/>
+                </n-icon>
+              </template>
+              重新排列座位
+            </n-button>
           </template>
-          边缘位置高亮
+          ”优化“后的排座位方式，不会连续两次抽到边缘位置
         </n-tooltip>
-        <n-button @click="reloadSeatTable">重载座位表组件</n-button>
-        <n-button @click="reSort" :loading="loading">
-          <template #icon>
-            <n-icon>
-              <Refresh/>
-            </n-icon>
-          </template>
-          随机排列座位
-        </n-button>
-        <n-button @click="replaceSeats" :loading="loading">
-          <template #icon>
-            <n-icon>
-              <RefreshDot/>
-            </n-icon>
-          </template>
-          重新排列座位
-        </n-button>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="rollSeats" :loading="loading">
+            <n-button @click="rollSeats(5)" :loading="loading">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -52,66 +51,61 @@
           </template>
           随机5次再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
         </n-tooltip>
-        <n-button @click="save">保存</n-button>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-button @click="reSort" :loading="loading">
+              <template #icon>
+                <n-icon>
+                  <Refresh/>
+                </n-icon>
+              </template>
+              随机排列座位
+            </n-button>
+          </template>
+          真·随机排列座位，六亲不认的那种
+        </n-tooltip>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-popconfirm
+                :negative-text="null"
+                @positive-click="rollSeats(times)"
+            >
+              <!--suppress VueUnrecognizedSlot -->
+              <template #trigger>
+                <n-button @click="" :loading="loading">
+                  <template #icon>
+                    <n-icon>
+                      <RefreshDot/>
+                    </n-icon>
+                  </template>
+                  玩把大的！
+                </n-button>
+              </template>
+              <div class="flex flex-row items-center">
+                次数：
+                <n-input-number clearable :precision="0" v-model:value="times"/>
+              </div>
+            </n-popconfirm>
+          </template>
+          与”按规则Roll座位“一样，只不过次数可以改
+        </n-tooltip>
+        <n-button @click="save" :disabled="loading">保存</n-button>
       </div>
       <div>
         <n-button-group>
           <n-button @click="showSetting=true">设置</n-button>
-          <n-button @click="showManager=true">人员管理</n-button>
-          <n-button @click="showAddModal=true">增加人员</n-button>
+          <n-button @click="showManager">人员管理</n-button>
+          <n-button @click="showMultiAddModal">增加人员</n-button>
         </n-button-group>
       </div>
-      <component :is="NButton"/>
     </div>
 
-    <n-modal v-model:show="showManager">
-      <n-card
-          style="width: 50%"
-          title="人员管理"
-          :bordered="true"
-          size="huge"
-          closable
-          @close="showManager=false"
-      >
-        <n-dynamic-tags v-model:value="allPerson" @update:value="message.success('修改成功')"/>
-      </n-card>
-    </n-modal>
-    <n-modal v-model:show="showAddModal">
-      <n-card
-          style="width: 50%"
-          title="批量增加人员"
-          :bordered="true"
-          size="huge"
-          closable
-          @close="showAddModal=false"
-      >
-        <n-form
-            :label-width="80"
-            :model="formValue"
-        >
-          <n-form-item label="请在下方输入姓名，多个请以空格或英文逗号分割" path="input">
-            <div class="flex flex-col w-full">
-              <n-text>当前已检测到：{{ formValue.names.length }}个</n-text>
-              <n-input v-model:value="formValue.input" type="textarea" placeholder="张三,李四,王五……"
-                       @blur="parseName" @focus="parseName" @keyup="parseName"/>
-            </div>
-          </n-form-item>
-          <n-form-item label="解析到的姓名" path="names">
-            <n-dynamic-tags v-model:value="formValue.names"/>
-          </n-form-item>
-        </n-form>
-        <template #footer>
-          <div class="flex">
-            <NButton class="ml-auto" type="primary" @click="addPerson" :disabled="formValue.names.length===0">
-              保存
-            </NButton>
-          </div>
-        </template>
-      </n-card>
-    </n-modal>
+
     <n-modal v-model:show="showSetting" style="width: 60%">
       <n-card
-          style="width: 50%"
+          style="width: 60%"
           title="设置"
           :bordered="true"
           size="small"
@@ -121,7 +115,7 @@
         <div class="flex flex-row justify-items-start" style="height: 60vh">
           <div class="px-2 pt-2 mr-2 bg-gray-200 rounded">
             <n-list class="flex flex-col justify-center w-1/4 min-w-0">
-              <n-list-item v-for="item in settings" :key="item.name">
+              <n-list-item v-for="item in settings" :key="item.name" class="bg-gray-200">
                 <n-button text tag="a" @click="handleSetting(item)">{{ item.name }}</n-button>
               </n-list-item>
             </n-list>
@@ -130,14 +124,14 @@
           <n-layout :key="scKey">
             <n-layout-header>{{ currentSetting.name }}</n-layout-header>
             <n-layout-content>
-              <component :is="currentSetting.component" />
+              <component :is="currentSetting.component" v-model:showAddModal="showAddModal"/>
             </n-layout-content>
           </n-layout>
         </div>
       </n-card>
     </n-modal>
-    <div class="fixed bottom-0 right-0 mb-2 mr-2">
-      <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=2026224214.mp3"></audio>
+    <div class="fixed bottom-0 right-0 mb-2 mr-2 ">
+      <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=430620198.mp3"></audio>
     </div>
   </div>
 </template>
@@ -148,11 +142,7 @@ import {
   NButton,
   NButtonGroup,
   NCard,
-  NDynamicTags,
-  NForm,
-  NFormItem,
   NIcon,
-  NInput,
   NModal,
   NSwitch,
   NTooltip,
@@ -168,7 +158,7 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements, shuffleArray } from '@/assets/seatHelper'
+import { replaceArrayElements, shuffleArray } from '@/assets/script/seatHelper'
 
 const message = useMessage()
 
@@ -178,29 +168,49 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms } = storeToRefs(settingStore)
 
-const formValue = ref({ input: '', names: [] })
-const showAddModal = ref(false)
-const showManager = ref(false)
 const showSetting = ref(false)
+const showAddModal = ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 const loading = ref(false)
+const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
 
 let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
 const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
 
+const showManager = () => {
+  currentSetting = { name: '💁人员管理', component: PersonManage }
+  showSetting.value = true
+}
+const showMultiAddModal = () => {
+  currentSetting = { name: '💁人员管理', component: PersonManage }
+  showSetting.value = true
+  showAddModal.value = true
+}
 const handleSetting = (x) => {
   currentSetting = x
   scKey.value = Math.random()
 }
+
+const playBgm = (bgm) => {
+  const player = document.getElementById('player')
+  player.src = bgm.url
+  player.currentTime = bgm.offset
+  message.info('正在播放：' + bgm.name)
+  console.log('正在播放：' + bgm.name)
+  player.play()
+}
+
 // 在组件挂载时开始更新日期和时间
 onMounted(() => {
   updateDateTime()
   setInterval(updateDateTime, 1000)
+  const player = document.getElementById('player')
+  player.volume = 0.6 //关 音 菩 萨
 })
 
 // 在组件卸载时停止更新日期和时间
@@ -256,29 +266,6 @@ const save = async () => {
                // 处理截图错误
                console.error(error)
              })
-  /*// 获取要截图的 <div> 元素
-  const targetDiv = document.getElementById('target-div')
-
-// 使用 html2canvas 对 <div> 进行截图
-  html2canvas(targetDiv)
-      .then(canvas => {
-        // 将 Canvas 转换为图像数据 URL
-        const imageDataUrl = canvas.toDataURL()
-        console.log(imageDataUrl)
-        // 创建一个 <a> 元素
-        const link = document.createElement('a')
-        link.href = imageDataUrl
-
-        // 设置下载属性
-        link.download = 'screenshot.png'
-
-        // 模拟点击下载链接
-        link.click()
-      })
-      .catch(error => {
-        // 处理截图错误
-        console.error(error)
-      })*/
 }
 
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
@@ -287,28 +274,6 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
     return { name: name, index: index }
   })
   console.log('seat has been initialized')
-}
-const parseName = () => {
-  formValue.value.names =
-      formValue.value.input
-               .split(/[,\s]+/)
-               .filter((element) => element !== undefined && element !== null && element !== '')
-}
-
-const addPerson = () => {
-  console.log('添加了这' + formValue.value.names.length + '个人：' + formValue.value.names)
-  allPerson.value.push(...formValue.value.names)
-  message.success('添加成功，共添加了' + formValue.value.names.length + '个')
-  showAddModal.value = false
-  //console.log(allSeats)
-  formValue.value.names
-           .map((name, index) => {
-             return { name: name, index: index }
-           })
-           .forEach(item => allSeats.value.push(item))
-  formValue.value.names = []
-  formValue.value.input = ''
-  reloadSeatTable()
 }
 
 const reSort = async () => {
@@ -319,25 +284,24 @@ const reSort = async () => {
   setTimeout(() => {loading.value = false}, 50)
 }
 
-const rollSeats = async () => {
+const rollSeats = async (x) => {
   loading.value = true
   await nextTick()
   const originSeats = [...allSeats.value]
-  /*const timer = setTimeout( () => {
-    allSeats.value = shuffleArray(allSeats.value)
-    await nextTick()
-    console.log(1)
-  }, 500)*/
   let count = 0 // 计数器
+
+  const i = Math.floor(Math.random() * bgms.value.length)
+  console.log(i)
+  const bgm = bgms.value[i]
+  playBgm(bgm)
 
   const intervalId = setInterval(async () => {
     // 执行某个操作
     allSeats.value = shuffleArray(allSeats.value)
     await nextTick()
-
     count++ // 增加计数器
 
-    if (count === 6)
+    if (count === (x + 1))
     {
       clearInterval(intervalId) // 达到执行次数后清除定时器
       setTimeout(() => {loading.value = false}, 500)
@@ -347,6 +311,8 @@ const rollSeats = async () => {
           index: index
         }
       })
+      const player = document.getElementById('player')
+      player.pause()
     }
   }, 500)
 }
