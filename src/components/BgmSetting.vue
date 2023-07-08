@@ -101,6 +101,11 @@ const initializeMusic = () => {
       url: 'https://music.163.com/song/media/outer/url?id=1492276411.mp3',
       offset: 154.5,
       uniqueId: generateUniqueId()
+    },{
+      name: '水手',
+      url: 'https://music.163.com/song/media/outer/url?id=5238221.mp3',
+      offset: 72.2,
+      uniqueId: generateUniqueId()
     },
   ]
 }
