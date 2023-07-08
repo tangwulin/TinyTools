@@ -15,13 +15,13 @@
     <div class="flex items-center justify-center mt-8 flex-col">
       <div class="flex items-center justify-center flex-col md:flex-row flex-wrap md:w-3/5">
 
-          <n-tooltip trigger="hover" >
-            <!--suppress VueUnrecognizedSlot -->
-            <template #trigger>
-              <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
-            </template>
-            边缘位置高亮
-          </n-tooltip>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+          </template>
+          边缘位置高亮
+        </n-tooltip>
         <n-button @click="reloadSeatTable" :disabled="loading">重载座位表组件</n-button>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
@@ -63,7 +63,7 @@
               随机排列座位
             </n-button>
           </template>
-          真·随机排列座位，六亲不认的那种
+          真·随机排列座位<del>，六亲不认的那种</del>
         </n-tooltip>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
@@ -158,7 +158,8 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements, shuffleArray } from '@/assets/script/seatHelper'
+import { replaceArrayElements } from '@/assets/script/seatHelper'
+import { shuffle } from 'lodash-es'
 
 const message = useMessage()
 
@@ -182,6 +183,9 @@ const scKey = ref(Math.random())
 let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
 const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
 
+let bgmList = shuffle(bgms.value)
+let bgmIndex = 0
+
 const showManager = () => {
   currentSetting = { name: '💁人员管理', component: PersonManage }
   showSetting.value = true
@@ -196,8 +200,11 @@ const handleSetting = (x) => {
   scKey.value = Math.random()
 }
 
-const playBgm = (bgm) => {
+const playBgm = () => {
   const player = document.getElementById('player')
+  const bgm = bgmList[bgmIndex]
+  if (bgmIndex < bgmList.length - 1) bgmIndex++
+  else bgmIndex = 0
   player.src = bgm.url
   player.currentTime = bgm.offset
   message.info('正在播放：' + bgm.name)
@@ -279,7 +286,7 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
 const reSort = async () => {
   loading.value = true
   await nextTick()
-  allSeats.value = shuffleArray(allSeats.value)
+  allSeats.value = shuffle(allSeats.value)
   await nextTick()
   setTimeout(() => {loading.value = false}, 50)
 }
@@ -290,14 +297,11 @@ const rollSeats = async (x) => {
   const originSeats = [...allSeats.value]
   let count = 0 // 计数器
 
-  const i = Math.floor(Math.random() * bgms.value.length)
-  console.log(i)
-  const bgm = bgms.value[i]
-  playBgm(bgm)
+  playBgm()
 
   const intervalId = setInterval(async () => {
     // 执行某个操作
-    allSeats.value = shuffleArray(allSeats.value)
+    allSeats.value = shuffle(allSeats.value)
     await nextTick()
     count++ // 增加计数器
 
