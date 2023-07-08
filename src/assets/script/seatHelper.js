@@ -1,4 +1,4 @@
-import difference from 'lodash/difference'
+import { difference,shuffle } from 'lodash-es'
 
 export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge = false, forceUpdate = false) => {
   let stopwatch = performance.now()
@@ -130,7 +130,7 @@ export const parseEdgeSeatIndex = (l) => {
   return result
 }
 
-export function shuffleArray(array)
+/*export function shuffleArray(array)
 {
   const newArray = [...array]
   for (let i = newArray.length - 1; i > 0; i--)
@@ -139,7 +139,7 @@ export function shuffleArray(array)
     [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
   }
   return newArray
-}
+}*/
 export function replaceArrayElements(source)
 {
   const sourceArray = [...source]
@@ -148,9 +148,9 @@ export function replaceArrayElements(source)
   const allIndexes = Array.from({ length: targetArray.length }, (_, i) => i)
   const notEdgeIndexesArray =difference(allIndexes,edgeIndexes)
 
-  if (sourceArray.length > notEdgeIndexesArray.length) return shuffleArray(sourceArray)
+  if (sourceArray.length > notEdgeIndexesArray.length) return shuffle(sourceArray)
 
-  const seatsForEdger = shuffleArray(notEdgeIndexesArray).slice(0, sourceArray.length) //截断为需要的长度
+  const seatsForEdger = shuffle(notEdgeIndexesArray).slice(0, sourceArray.length) //截断为需要的长度
 
 
   const positions2 = difference(allIndexes, seatsForEdger) //分配给原来坐犄角旮旯的人剩下的
