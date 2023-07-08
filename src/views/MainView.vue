@@ -13,16 +13,8 @@
       </div>
     </div>
     <div class="flex items-center justify-center mt-8 flex-col">
-      <div class="flex items-center justify-center flex-col md:flex-row flex-wrap md:w-3/5">
-
-        <n-tooltip trigger="hover">
-          <!--suppress VueUnrecognizedSlot -->
-          <template #trigger>
-            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
-          </template>
-          边缘位置高亮
-        </n-tooltip>
-        <n-button @click="reloadSeatTable" :disabled="loading">重载座位表组件</n-button>
+      <div class="flex items-center justify-center flex-col md:flex-row flex-wrap md:w-3/5"> <!-- 操作区域 -->
+        <!--        <n-button @click="reloadSeatTable" :disabled="loading">重载座位表组件</n-button>-->
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
@@ -54,21 +46,8 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="reSort" :loading="loading">
-              <template #icon>
-                <n-icon>
-                  <Refresh/>
-                </n-icon>
-              </template>
-              随机排列座位
-            </n-button>
-          </template>
-          真·随机排列座位<del>，六亲不认的那种</del>
-        </n-tooltip>
-        <n-tooltip trigger="hover">
-          <!--suppress VueUnrecognizedSlot -->
-          <template #trigger>
             <n-popconfirm
+                positive-text="确定"
                 :negative-text="null"
                 @positive-click="rollSeats(times)"
             >
@@ -91,13 +70,36 @@
           </template>
           与”按规则Roll座位“一样，只不过次数可以改
         </n-tooltip>
-        <n-button @click="save" :disabled="loading">保存</n-button>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-button @click="reSort" :loading="loading">
+              <template #icon>
+                <n-icon>
+                  <Refresh/>
+                </n-icon>
+              </template>
+              随机排列座位
+            </n-button>
+          </template>
+          真·随机排列座位
+          <del>，六亲不认的那种</del>
+        </n-tooltip>
+
       </div>
-      <div>
+      <div> <!-- 下方工具条 -->
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+          </template>
+          边缘位置高亮
+        </n-tooltip>
         <n-button-group>
           <n-button @click="showSetting=true">设置</n-button>
           <n-button @click="showManager">人员管理</n-button>
           <n-button @click="showMultiAddModal">增加人员</n-button>
+          <n-button @click="save" :disabled="loading">保存</n-button>
         </n-button-group>
       </div>
     </div>
