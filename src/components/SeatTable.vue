@@ -4,13 +4,13 @@ import draggable from 'vuedraggable-swap'
 import { computed, ref, watch } from 'vue'
 import { getRenderingList, parseRenderingListToSeats } from '@/assets/script/seatHelper'
 
-const props = defineProps(['seats', 'renderingList', 'coloringEdge','rendering'])
-const emit = defineEmits(['update', 'update:seats', 'update:renderingList','update:rendering'])
+const props = defineProps(['seats', 'renderingList', 'coloringEdge', 'rendering'])
+const emit = defineEmits(['update', 'update:seats', 'update:renderingList', 'update:rendering'])
 
-const rendering=ref(props.rendering)
+const rendering = ref(props.rendering)
 
-rendering.value=true
-emit('update:rendering',true) //通知外面正在渲染
+rendering.value = true
+emit('update:rendering', true) //通知外面正在渲染
 
 let onPropChanging = false
 let onRenderingChanging = false
@@ -27,10 +27,9 @@ const seats = computed({
   },
   set(value)
   {
-
     console.log('seats changed onRenderingChanging:' + onRenderingChanging)
     _seats.value = value.map((item, index) => {
-      return { name: item.name, index: index }
+      return { ...item, index: index }
     })
     onPropChanging = true
     if (onRenderingChanging)
@@ -46,7 +45,7 @@ const seats = computed({
 })
 //console.log(getRenderingList(seats.value, [], coloring.value))
 let oldRenderingListInitialized = false
-if (oldRenderingList.value.length === 0 &&seats.value.length!==0)
+if (oldRenderingList.value.length === 0 && seats.value.length !== 0)
 {
   //console.log(oldRenderingList.value)
   if (!oldRenderingListInitialized) //不要问为什么不提出来到外面那层if，问就是不行
@@ -61,12 +60,10 @@ const _renderingList = ref(getRenderingList(seats.value, oldRenderingList.value,
 const renderingList = computed({
   get()
   {
-    //console.log(oldRenderingList)
-    //console.log(_renderingList)
     console.log('get renderingList')
     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-    rendering.value=false //别骂哥们，因为真不知道怎么写
-    emit('update:rendering',false)
+    rendering.value = false //别骂哥们，因为真不知道怎么写
+    emit('update:rendering', false)
     return _renderingList.value
   },
   set(value)

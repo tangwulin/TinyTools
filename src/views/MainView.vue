@@ -41,7 +41,7 @@
               按规则Roll座位
             </n-button>
           </template>
-          随机5次再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
+          先随机5次并展示每次结果，再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
         </n-tooltip>
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
@@ -76,6 +76,20 @@
             <n-button @click="reSort" :loading="loading">
               <template #icon>
                 <n-icon>
+                  <RefreshDot/>
+                </n-icon>
+              </template>
+              抽卡！
+            </n-button>
+          </template>
+          与”重新排列座位“一样，只不过会一个个的展示结果
+        </n-tooltip>
+        <n-tooltip trigger="hover">
+          <!--suppress VueUnrecognizedSlot -->
+          <template #trigger>
+            <n-button @click="reSort" :loading="loading">
+              <template #icon>
+                <n-icon>
                   <Refresh/>
                 </n-icon>
               </template>
@@ -91,7 +105,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint"/>
+            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>
           </template>
           边缘位置高亮
         </n-tooltip>
@@ -139,7 +153,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch, toRaw } from 'vue'
 import {
   NButton,
   NButtonGroup,
@@ -160,10 +174,11 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements } from '@/assets/script/seatHelper'
+import { replaceArrayElements, getRenderingList } from '@/assets/script/seatHelper'
 import { shuffle } from 'lodash-es'
 
 const message = useMessage()
+const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
 
 const seatStore = useSeatStore()
 const personStore = usePersonStore()
@@ -185,7 +200,7 @@ const scKey = ref(Math.random())
 let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
 const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
 
-let bgmList = shuffle(bgms.value)
+let bgmList = shuffle(toRaw(bgms.value))
 let bgmIndex = 0
 
 const showManager = () => {
@@ -205,6 +220,7 @@ const handleSetting = (x) => {
 const playBgm = () => {
   const player = document.getElementById('player')
   const bgm = bgmList[bgmIndex]
+  console.log(bgmList)
   if (bgmIndex < bgmList.length - 1) bgmIndex++
   else bgmIndex = 0
   player.src = bgm.url
@@ -237,7 +253,6 @@ function updateDateTime()
   currentTime.value = time
 }
 
-//const worker = new Worker('src/assets/seatWorker.js', { type: 'module' })
 const save = async () => {
   async function loadModule()
   {
@@ -287,10 +302,14 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
 
 const reSort = async () => {
   loading.value = true
+  playBgm()
+  const data = JSON.parse(JSON.stringify(allSeats.value))
+  console.log('主线程向worker发送消息：', data)
+  worker.postMessage(data)
   await nextTick()
-  allSeats.value = shuffle(allSeats.value)
+  //allSeats.value = shuffle(allSeats.value)
   await nextTick()
-  setTimeout(() => {loading.value = false}, 50)
+  setTimeout(() => {loading.value = false}, allSeats.value.length * 550)
 }
 
 const rollSeats = async (x) => {
@@ -313,7 +332,7 @@ const rollSeats = async (x) => {
       setTimeout(() => {loading.value = false}, 500)
       allSeats.value = replaceArrayElements(originSeats).map((item, index) => {
         return {
-          name: item.name,
+          ...item,
           index: index
         }
       })
@@ -324,23 +343,19 @@ const rollSeats = async (x) => {
 }
 
 const replaceSeats = async () => {
-  //TODO:把这部分移到WebWorker
-  /*const data =[...allSeats.value]
-  console.log('主线程向worker发送消息：'+data)
-  worker.postMessage(data)*/
   loading.value = true
   console.log('开始重新排列座位')
   const stopwatch = performance.now()
   await nextTick()
-  allSeats.value = replaceArrayElements(allSeats.value).map((item, index) => {return { name: item.name, index: index }})
+  allSeats.value = replaceArrayElements(allSeats.value).map((item, index) => {return { ...item, index: index }})
   await nextTick()
   console.log('执行完成,用时' + (performance.now() - stopwatch) + 'ms')
   setTimeout(() => {loading.value = false}, 50)
 }
 
 const reloadSeatTable = async () => {
-  stKey.value = Math.random() //刷新一下SeatTable组件
   allSeats.value = [...allSeats.value] //这里不是脱裤子放屁，是为了触发侦听器
+  stKey.value = Math.random() //刷新一下SeatTable组件
   console.log('SeatTable has been reload')
 }
 
@@ -357,10 +372,13 @@ watch(oldRenderingList, () => {
   stKey.value = Math.random()
 })
 
-/*worker.onmessage = function (event) {
-  console.log('接收到Web Worker的消息:', event.data)
-  //allSeats.value=event.data
-}*/
+worker.onmessage = function (event) {
+  // console.log('接收到Web Worker的消息:', event.data)
+  console.log('收到Web Worker的更新')
+  //oldRenderingList.value=getRenderingList(event.data,oldRenderingList.value)
+  allSeats.value = event.data
+  reloadSeatTable()
+}
 
 </script>
 
