@@ -1,5 +1,11 @@
 # Updater Log
 
+## v2.1.0
+
+- fix: 修复Production时WebWorker无法使用的问题
+- fix: 修复了无法更新的问题
+- feat: 优化UI
+- 增加了关于页面
 ## v2.0.6
 
 - fix: 修正CI Workflow中的问题：pubkey多了个/n
