@@ -180,7 +180,10 @@ import { shuffle } from 'lodash-es'
 import { getDefaultMusic } from '../assets/script/musicHelper'
 
 const message = useMessage()
-const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
+//const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
+const worker = new Worker(new URL('../assets/script/seatWorker.js', import.meta.url), {
+  type: 'module',
+})
 
 const seatStore = useSeatStore()
 const personStore = usePersonStore()
