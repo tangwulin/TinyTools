@@ -53,7 +53,7 @@
             >
               <!--suppress VueUnrecognizedSlot -->
               <template #trigger>
-                <n-button @click="" :loading="loading">
+                <n-button :loading="loading">
                   <template #icon>
                     <n-icon>
                       <RefreshDot/>
@@ -164,15 +164,13 @@ import {
   NModal,
   NSwitch,
   NTooltip,
-  NLayout,
-  NLayoutContent,
   useMessage
 } from 'naive-ui'
 import { Refresh, RefreshDot } from '@vicons/tabler'
 import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
-import About from '../components/About.vue'
+import About from '../components/AboutPage.vue'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
