@@ -1,4 +1,7 @@
 # Updater Log
+## v2.0.4
+
+- fix: 修复CI Workflow
 ## v2.0.3
 
 - fix: 修复CI Workflow
