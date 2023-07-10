@@ -53,7 +53,7 @@
             >
               <!--suppress VueUnrecognizedSlot -->
               <template #trigger>
-                <n-button @click="" :loading="loading">
+                <n-button :loading="loading">
                   <template #icon>
                     <n-icon>
                       <RefreshDot/>
@@ -131,21 +131,23 @@
         <div class="flex flex-row justify-items-start" style="height: 60vh">
           <div class="px-2 pt-2 mr-2 bg-gray-200 rounded">
             <n-list class="flex flex-col justify-center w-1/4 min-w-0">
-              <n-list-item v-for="item in settings" :key="item.name" class="bg-gray-200">
-                <n-button text tag="a" @click="handleSetting(item)">{{ item.name }}</n-button>
+              <n-list-item v-for="item in settings" :key="item.name" class="bg-gray-200 mt-auto">
+                <n-button text @click="handleSetting(item)">{{ item.name }}</n-button>
               </n-list-item>
             </n-list>
           </div>
-
-          <n-layout :key="scKey">
-            <n-layout-header>{{ currentSetting.name }}</n-layout-header>
-            <n-layout-content>
+          <div class="flex flex-col justify-items-start w-full" :key="scKey">
+            <div id="settingTitle"><p>{{ currentSetting.name }}</p></div>
+            <div class="h-full overflow-y-hidden" id="settingContainer">
               <component :is="currentSetting.component" v-model:showAddModal="showAddModal"/>
-            </n-layout-content>
-          </n-layout>
+            </div>
+          </div>
         </div>
       </n-card>
     </n-modal>
+    <div class="fixed bottom-0 left-0 mb-2 ml-2 text-xs">
+      <p>TinyTools v{{ version }} Build {{ shout_sha }}</p>
+    </div>
     <div class="fixed bottom-0 right-0 mb-2 mr-2 ">
       <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=430620198.mp3"></audio>
     </div>
@@ -162,25 +164,30 @@ import {
   NModal,
   NSwitch,
   NTooltip,
-  NLayout,
-  NLayoutContent,
   useMessage
 } from 'naive-ui'
 import { Refresh, RefreshDot } from '@vicons/tabler'
 import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
+import About from '../components/AboutPage.vue'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 import { replaceArrayElements } from '@/assets/script/seatHelper'
-
 import { shuffle } from 'lodash-es'
 import { getDefaultMusic } from '../assets/script/musicHelper'
 
+const version = __APP_VERSION__
+const github_sha = __GITHUB_SHA__ || 'Developing'
+const shout_sha =github_sha.substring(0,7)
+
 const message = useMessage()
-const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
+//const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
+const worker = new Worker(new URL('../assets/script/seatWorker.js', import.meta.url), {
+  type: 'module',
+})
 
 const seatStore = useSeatStore()
 const personStore = usePersonStore()
@@ -199,8 +206,14 @@ const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
 
-let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
-const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
+const settings = [
+  { name: '🎶背景音乐', component: BgmSetting },
+  { name: '💁人员管理', component: PersonManage },
+  { name: 'ℹ️关于', component: About }
+]
+
+let currentSetting = settings[0]
+
 if (bgms.value.length === 0)
 {
   bgms.value = getDefaultMusic()

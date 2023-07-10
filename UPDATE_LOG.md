@@ -1,5 +1,25 @@
 # Updater Log
 
+## v2.0.6
+
+- fix: 修正CI Workflow中的问题：pubkey多了个/n
+
+## v2.0.5
+
+- fix: 修正CI Workflow中的问题：更改包管理器为pnpm
+
+## v2.0.4
+
+- fix: 修复CI Workflow
+
+## v2.0.3
+
+- fix: 修复CI Workflow
+
+## v2.0.2
+
+- feat: 增加了自动更新功能
+
 ## v2.0.1
 
 - fix: 修复抽卡时产生的问题

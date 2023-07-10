@@ -1,6 +1,6 @@
 <!--suppress SpellCheckingInspection, SpellCheckingInspection -->
 <script setup>
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { PlaylistAdd, Refresh } from '@vicons/tabler'
 import { InfoFilled } from '@vicons/material'
 import { useSettingStore } from '@/stores/setting'
@@ -14,6 +14,12 @@ const { bgms, isBGMInitialized } = storeToRefs(setting)
 
 const showEditModal = ref(false)
 const formData = ref({ name: '', url: '', offset: 0, uniqueId: '' })
+const tableHeight = ref(200)
+const dtKey = ref(Math.random())
+
+onMounted(() => {
+  tableHeight.value = document.getElementById('settingContainer').clientHeight - 1
+})
 
 const addHandler = () => {
   showEditModal.value = true
@@ -186,7 +192,10 @@ const rules = {
         :columns="columns"
         :data="bgms"
         :pagination="false"
-        :bordered="false">
+        :bordered="false"
+        :max-height="tableHeight"
+        :key="dtKey"
+    >
     </n-data-table>
     <n-modal :show="showEditModal">
       <n-card
