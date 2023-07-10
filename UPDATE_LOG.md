@@ -1,4 +1,6 @@
 # Updater Log
+## v2.0.5
+- fix: 修正CI Workflow中的问题：更改包管理器为pnpm
 ## v2.0.4
 
 - fix: 修复CI Workflow
