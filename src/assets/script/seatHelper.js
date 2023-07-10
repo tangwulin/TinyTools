@@ -58,17 +58,17 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
       })
     }
     console.log('add blank time:' + (performance.now() - stopwatch) + 'ms')
-    console.log(result)
     return result
   }
   else
   {
     console.log('Replace mode')
-    // let i = -1 //这里是为了适配下面的需要
+    let i = -1 //这里是为了适配下面的需要
     oldRenderingList = oldRenderingList.map(item => {
       if (item.isSeat)
       {
-        const i = item.index
+        i++
+        //const i = item.index
         if (x[i].isSeat) return { ...x[i], isSeat: true }
         else return x[i]
 
@@ -83,13 +83,13 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
 export const parseRenderingListToSeats = (x) => {
   return x
     .map(item => {
-      if (item.isSeat !== false)
+      if (item.isSeat === true)
       {
-        return { name: item.name, index: item.index, color: item.color }
+        return item
       }
     })
     .filter(item => item !== undefined)
-    .map((item, index) => {return { name: item.name, index: index }})
+    .map((item, index) => {return { ...item, index: index }})
 }
 
 export const parseEdgeSeatIndex = (l) => {

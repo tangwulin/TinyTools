@@ -70,7 +70,7 @@ const renderingList = computed({
   {
     console.log('renderingList changed onPropChanging:' + onPropChanging)
     _renderingList.value = [...value]
-    oldRenderingList.value = [...value]
+    oldRenderingList.value = getRenderingList(parseRenderingListToSeats(value),value)
     if (onPropChanging)
     {
       onPropChanging = false

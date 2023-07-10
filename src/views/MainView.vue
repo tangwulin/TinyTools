@@ -73,7 +73,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="reSort" :loading="loading">
+            <n-button @click="gacha" :loading="loading">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -174,8 +174,10 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements, getRenderingList } from '@/assets/script/seatHelper'
+import { replaceArrayElements } from '@/assets/script/seatHelper'
+
 import { shuffle } from 'lodash-es'
+import { getDefaultMusic } from '../assets/script/musicHelper'
 
 const message = useMessage()
 const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
@@ -199,6 +201,10 @@ const scKey = ref(Math.random())
 
 let currentSetting = { name: '🎶背景音乐', component: BgmSetting }
 const settings = [{ name: '🎶背景音乐', component: BgmSetting }, { name: '💁人员管理', component: PersonManage }]
+if (bgms.value.length === 0)
+{
+  bgms.value = getDefaultMusic()
+}
 
 let bgmList = shuffle(toRaw(bgms.value))
 let bgmIndex = 0
@@ -302,13 +308,18 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
 
 const reSort = async () => {
   loading.value = true
+  await nextTick()
+  allSeats.value = shuffle(allSeats.value).map((item, index) => {return { ...item, index: index }})
+  await nextTick()
+  setTimeout(() => {loading.value = false}, 50)
+}
+
+const gacha = async () => {
+  loading.value = true
   playBgm()
   const data = JSON.parse(JSON.stringify(allSeats.value))
   console.log('主线程向worker发送消息：', data)
   worker.postMessage(data)
-  await nextTick()
-  //allSeats.value = shuffle(allSeats.value)
-  await nextTick()
   setTimeout(() => {loading.value = false}, allSeats.value.length * 550)
 }
 
@@ -322,7 +333,12 @@ const rollSeats = async (x) => {
 
   const intervalId = setInterval(async () => {
     // 执行某个操作
-    allSeats.value = shuffle(allSeats.value)
+    allSeats.value = shuffle(allSeats.value).map((item, index) => {
+      return {
+        ...item,
+        index: index
+      }
+    })
     await nextTick()
     count++ // 增加计数器
 
