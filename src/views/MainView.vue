@@ -180,7 +180,7 @@ import { shuffle } from 'lodash-es'
 import { getDefaultMusic } from '../assets/script/musicHelper'
 
 const version = __APP_VERSION__
-const github_sha = __GITHUB_SHA__ || 'Developing'
+const github_sha = __GITHUB_SHA__
 const shout_sha =github_sha.substring(0,7)
 
 const message = useMessage()

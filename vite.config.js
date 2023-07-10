@@ -50,6 +50,6 @@ export default defineConfig({
   },
   define: {
     '__APP_VERSION__': JSON.stringify(process.env.npm_package_version),
-    '__GITHUB_SHA__': JSON.stringify(process.env.GITHUB_SHA)
+    '__GITHUB_SHA__': process.env.GITHUB_SHA
   }
 })
