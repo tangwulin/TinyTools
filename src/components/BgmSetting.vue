@@ -6,6 +6,7 @@ import { InfoFilled } from '@vicons/material'
 import { useSettingStore } from '@/stores/setting'
 import { NButton, NCard, NDataTable, NForm, NModal, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia'
+import { generateUniqueId, getDefaultMusic } from '../assets/script/musicHelper'
 
 const message = useMessage()
 const setting = useSettingStore()
@@ -53,62 +54,10 @@ const handler = () => {
 let isEdit = false
 const cardTitle = computed(() => {return isEdit ? '编辑' : '添加'})
 
-function generateUniqueId()
-{
-  return Date.now().toString(36) + Math.random().toString(36).slice(2)
-}
-
-const initializeMusic = () => {
-  bgms.value = [
-    {
-      name: 'Never Gonna Give You Up',
-      url: 'https://music.163.com/song/media/outer/url?id=5221167.mp3',
-      offset: 0,
-      uniqueId: generateUniqueId()
-    },
-    {
-      name: '好运来',
-      url: 'https://music.163.com/song/media/outer/url?id=333750.mp3',
-      offset: 0,
-      uniqueId: generateUniqueId()
-    },
-    {
-      name: '烟distance',
-      url: 'https://music.163.com/song/media/outer/url?id=2039800852.mp3',
-      offset: 0,
-      uniqueId: generateUniqueId()
-    },
-    {
-      name: 'Tunak Tunak Tun',
-      url: 'https://music.163.com/song/media/outer/url?id=1303214808.mp3',
-      offset: 0,
-      uniqueId: generateUniqueId()
-    },
-    {
-      name: '阳光彩虹小白鸡',
-      url: 'https://music.163.com/song/media/outer/url?id=1948834228.mp3',
-      offset: 0,
-      uniqueId: generateUniqueId()
-    },
-    {
-      name: 'The Magnificent Seven',
-      url: 'https://music.163.com/song/media/outer/url?id=430620198.mp3',
-      offset: 0,
-      uniqueId: generateUniqueId()
-    },
-    {
-      name: 'Liyue 璃月',
-      url: 'https://music.163.com/song/media/outer/url?id=1492276411.mp3',
-      offset: 154.5,
-      uniqueId: generateUniqueId()
-    },
-  ]
-}
-
 if (bgms.value.length === 0 && !isBGMInitialized.value)
 {
   isBGMInitialized.value = true
-  initializeMusic()
+  bgms.value = getDefaultMusic()
 }
 
 const createColumns = (play, edit, del) => {
@@ -142,7 +91,7 @@ const createColumns = (play, edit, del) => {
                     class: 'p-2',
                     renderIcon: () => {return h(Refresh)},
                     onClick: () => {
-                      initializeMusic()
+                      bgms.value = getDefaultMusic()
                       message.success('重置成功')
                     }
                   },

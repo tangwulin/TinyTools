@@ -4,6 +4,7 @@ import { NButton, NCard, NDynamicTags, NForm, NFormItem, NInput, NModal, useMess
 import { storeToRefs } from 'pinia'
 import { usePersonStore } from '@/stores/person'
 import { useSeatStore } from '@/stores/seat'
+import {getRenderingList} from '../assets/script/seatHelper'
 
 const props = defineProps(['showAddModal'])
 const emit = defineEmits(['update:showAddModal'])
@@ -11,7 +12,7 @@ const emit = defineEmits(['update:showAddModal'])
 const personStore = usePersonStore()
 const seatStore = useSeatStore()
 const { allPerson } = storeToRefs(personStore)
-const { allSeats } = storeToRefs(seatStore)
+const { allSeats,oldRenderingList } = storeToRefs(seatStore)
 
 const showAddModal = ref(!!props.showAddModal || false)
 if (showAddModal.value)
@@ -38,9 +39,10 @@ const addPerson = () => {
   //console.log(allSeats)
   formValue.value.names
            .map((name, index) => {
-             return { name: name, index: index }
+             return { name: name, index: index, isSeat: true }
            })
            .forEach(item => allSeats.value.push(item))
+  oldRenderingList.value=getRenderingList(allSeats.value,[])
   formValue.value.names = []
   formValue.value.input = ''
   //reloadSeatTable()

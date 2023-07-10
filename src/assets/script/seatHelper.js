@@ -1,11 +1,11 @@
-import difference from 'lodash/difference'
+import { difference, shuffle } from 'lodash-es'
 
 export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge = false, forceUpdate = false) => {
   let stopwatch = performance.now()
   if (seat.length === 0) return []
-  if (seat.length !== parseRenderingListToSeats(oldRenderingList).length) forceUpdate = true
+  //if (seat.length !== parseRenderingListToSeats(oldRenderingList).length) forceUpdate = true
 
-  let x=[...seat]
+  let x = [...seat]
   if (coloringEdge)
   {
     x.forEach((item, index) => {
@@ -23,19 +23,22 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
   if (oldRenderingList.length === 0 || forceUpdate) //判断是否为拖动导致的更新
   {
     console.log('Calculation mode')
-    //console.log(oldRenderingList)
-    const result = x.map(item => ({
-      name: item.name, isSeat: true, index: item.index, color: item.color
-    })).flatMap((value, index) => {
-      if ((index + 1) % 2 === 0 && (index + 1) % 8 !== 0)
-      {
-        return [value, { name: null, isSeat: false }]
-      }
-      else
-      {
-        return value
-      }
-    })
+    console.log(oldRenderingList)
+    const result =
+      x
+        .map(item => ({
+          name: item.name, isSeat: true, index: item.index, color: item.color
+        }))
+        .flatMap((value, index) => {
+          if ((index + 1) % 2 === 0 && (index + 1) % 8 !== 0)
+          {
+            return [value, { name: null, isSeat: false }]
+          }
+          else
+          {
+            return value
+          }
+        })
     console.log('convert time:' + (performance.now() - stopwatch) + 'ms')
     stopwatch = performance.now()
     const remaining = 11 - (result.length % 11)
@@ -60,14 +63,17 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
   else
   {
     console.log('Replace mode')
-    let i = 0
-    oldRenderingList.forEach(item => {
+    let i = -1 //这里是为了适配下面的需要
+    oldRenderingList = oldRenderingList.map(item => {
       if (item.isSeat)
       {
-        item.name = x[i].name
-        item.color = x[i].color
         i++
+        //const i = item.index
+        if (x[i].isSeat) return { ...x[i], isSeat: true }
+        else return x[i]
+
       }
+      else return item
     })
     console.log('replace time:' + (performance.now() - stopwatch) + 'ms')
     return oldRenderingList
@@ -77,13 +83,13 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
 export const parseRenderingListToSeats = (x) => {
   return x
     .map(item => {
-      if (item.isSeat !== false)
+      if (item.isSeat === true)
       {
-        return { name: item.name, index: item.index, color: item.color }
+        return item
       }
     })
     .filter(item => item !== undefined)
-    .map((item, index) => {return { name: item.name, index: index }})
+    .map((item, index) => {return { ...item, index: index }})
 }
 
 export const parseEdgeSeatIndex = (l) => {
@@ -130,31 +136,20 @@ export const parseEdgeSeatIndex = (l) => {
   return result
 }
 
-export function shuffleArray(array)
-{
-  const newArray = [...array]
-  for (let i = newArray.length - 1; i > 0; i--)
-  {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-  }
-  return newArray
-}
 export function replaceArrayElements(source)
 {
   const sourceArray = [...source]
   const targetArray = []
-  const edgeIndexes=parseEdgeSeatIndex(sourceArray.length)
+  const edgeIndexes = parseEdgeSeatIndex(sourceArray.length)
   const allIndexes = Array.from({ length: targetArray.length }, (_, i) => i)
-  const notEdgeIndexesArray =difference(allIndexes,edgeIndexes)
+  const notEdgeIndexesArray = difference(allIndexes, edgeIndexes)
 
-  if (sourceArray.length > notEdgeIndexesArray.length) return shuffleArray(sourceArray)
+  if (sourceArray.length > notEdgeIndexesArray.length) return shuffle(sourceArray)
 
-  const seatsForEdger = shuffleArray(notEdgeIndexesArray).slice(0, sourceArray.length) //截断为需要的长度
-
+  const seatsForEdger = shuffle(notEdgeIndexesArray).slice(0, sourceArray.length) //截断为需要的长度
 
   const positions2 = difference(allIndexes, seatsForEdger) //分配给原来坐犄角旮旯的人剩下的
-  const sourceArray2 =notEdgeIndexesArray.map(index=>targetArray[index]) //原来那些不坐犄角旮旯的人
+  const sourceArray2 = notEdgeIndexesArray.map(index => targetArray[index]) //原来那些不坐犄角旮旯的人
 
   // 逐个替换元素
   seatsForEdger.forEach(position => {
@@ -163,8 +158,7 @@ export function replaceArrayElements(source)
     sourceArray.splice(sourceIndex, 1) //把用过的删掉
   })
 
-
-  positions2.forEach(position=>{
+  positions2.forEach(position => {
     const sourceIndex = Math.floor(Math.random() * sourceArray2.length)
     targetArray[position] = sourceArray[sourceIndex]
     sourceArray2.splice(sourceIndex, 1)
