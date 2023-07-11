@@ -6,7 +6,12 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import { execSync } from 'child_process'
 
+const revision = execSync('git rev-parse HEAD').toString().trim().substring(0, 7)
+const githubSHA = execSync('git rev-parse HEAD').toString().trim().toString()
+process.env.revision = revision
+process.env.githubSHA = githubSHA
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -50,6 +55,7 @@ export default defineConfig({
   },
   define: {
     '__APP_VERSION__': JSON.stringify(process.env.npm_package_version),
-    '__GITHUB_SHA__': JSON.stringify(process.env.GITHUB_SHA)
+    '__GITHUB_SHA__': JSON.stringify(process.env.githubSHA),
+    '__REVISION__': JSON.stringify(process.env.revision)
   }
 })
