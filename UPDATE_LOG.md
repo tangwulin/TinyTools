@@ -1,5 +1,11 @@
 # Updater Log
 
+## v2.2.0
+- fix: 修复了保存图片时样式错乱的问题
+- feat: 增加了保存svg格式图片的功能
+- feat: 增加了调整保存png时缩放的功能
+- UI上的小调整
+
 ## v2.1.0
 
 - fix: 修复Production时WebWorker无法使用的问题
