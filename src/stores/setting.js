@@ -5,7 +5,10 @@ export const useSettingStore = defineStore('setting', () => {
     const coloringEdgeSeats = ref(false)
     const bgms = ref([])
     const isBGMInitialized = ref(false)
-    return { coloringEdgeSeats, bgms, isBGMInitialized }
+
+    const imageFormat = ref('png')
+    const pngScale = ref(2)
+    return { coloringEdgeSeats, bgms, isBGMInitialized, imageFormat,pngScale }
   },
   {
     persist: true
