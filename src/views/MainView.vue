@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-center flex-col w-max h-auto m-auto">
-    <div id="target-div" class="m-auto md:w-fit ">
+    <div id="target-div" class="m-auto md:w-fit p-4">
       <div class="flex items-center justify-center mb-4">
         <n-button :size='"large"'>讲台</n-button>
       </div>
@@ -171,15 +171,15 @@ import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
 import About from '../components/AboutPage.vue'
-import domtoimage from 'dom-to-image'
-import { saveAs } from 'file-saver'
+import ImageSetting from '@/components/ImageSetting.vue'
+import { domToPng, domToSvg } from 'modern-screenshot'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 import { replaceArrayElements } from '@/assets/script/seatHelper'
 import { shuffle } from 'lodash-es'
-import { getDefaultMusic } from '../assets/script/musicHelper'
+import { getDefaultMusic } from '@/assets/script/musicHelper'
 
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
@@ -198,7 +198,7 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms, imageFormat } = storeToRefs(settingStore)
 
 const showSetting = ref(false)
 const showAddModal = ref(false)
@@ -213,6 +213,7 @@ let msgReactive = null
 const settings = [
   { name: '🎶背景音乐', component: BgmSetting },
   { name: '💁人员管理', component: PersonManage },
+  { name: '🖼️图片生成', component: ImageSetting },
   { name: 'ℹ️关于', component: About }
 ]
 
@@ -278,28 +279,56 @@ function updateDateTime()
 
 const save = async () => {
   loading.value = true
-  msgReactive = message.create('正在保存……', { type: 'loading', duration: 1e4 })
-  const div = document.getElementById('target-div')
+  msgReactive = message.create('正在生成图片……', { type: 'loading', duration: 0 })
+
+  const target = document.getElementById('target-div')
   const options = {
     filter: (node) => {
-      return (!node.dashed)
+      try
+      {
+        return (!node.classList.contains('n-button--dashed'))
+      }
+      catch (e)
+      {
+        return true
+      }
     },
-    bgcolor: 'var(--color-background)',
+    backgroundColor: '#FFFFFF',
+    scale: 2
   }
 
-  domtoimage.toSvg(div, options)
-            .then(async (data) => {
-              const doc = new DOMParser().parseFromString(data.slice(33), 'text/html')
-              doc.querySelector('#target-div > style').remove()
-              const svg = doc.querySelector('body > svg')
-              const svgUrl = 'data:image/svg+xml;charset=utf-8,' + new XMLSerializer().serializeToString(svg)
-              saveAs(svgUrl, 'seat-' + currentDate.value + '-' + currentTime.value + '.svg')
-            })
-            .then(() => {
-              msgReactive.content = '保存成功'
-              msgReactive.type = 'success'
-              loading.value = false
-            })
+  switch (imageFormat.value)
+  {
+    case 'svg':
+      domToSvg(target, options)
+          .then(dataUrl => {
+            const link = document.createElement('a')
+            link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.svg'
+            link.href = dataUrl
+            link.click()
+          })
+          .then(() => {
+            msgReactive.content = '保存成功'
+            msgReactive.type = 'success'
+            loading.value = false
+          })
+      break
+    case 'png':
+    default:
+      domToPng(target, options)
+          .then(dataUrl => {
+            const link = document.createElement('a')
+            link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
+            link.href = dataUrl
+            link.click()
+          })
+          .then(() => {
+            msgReactive.content = '保存成功'
+            msgReactive.type = 'success'
+            loading.value = false
+          })
+      break
+  }
 }
 
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
