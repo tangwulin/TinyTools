@@ -146,7 +146,7 @@
       </n-card>
     </n-modal>
     <div class="fixed bottom-0 left-0 mb-2 ml-2 text-xs">
-      <p>TinyTools v{{ version }} Build {{ shout_sha }}</p>
+      <p>TinyTools v{{ version }} Build <a :href="githubLink" target="_blank">#{{ revision }}</a></p>
     </div>
     <div class="fixed bottom-0 right-0 mb-2 mr-2 ">
       <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=430620198.mp3"></audio>
@@ -171,6 +171,8 @@ import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
 import About from '../components/AboutPage.vue'
+import domtoimage from 'dom-to-image'
+import { saveAs } from 'file-saver'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
@@ -181,11 +183,12 @@ import { getDefaultMusic } from '../assets/script/musicHelper'
 
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
-const shout_sha =github_sha.substring(0,7)
+const revision = __REVISION__
+const githubLink = 'https://github.com/tangwulin/TinyTools/tree/' + github_sha
 
 const message = useMessage()
-//const worker = new Worker('src/assets/script/seatWorker.js', { type: 'module' })
-const worker = new Worker(new URL('../assets/script/seatWorker.js', import.meta.url), {
+
+const seatWorker = new Worker(new URL('../assets/script/seatWorker.js', import.meta.url), {
   type: 'module',
 })
 
@@ -205,6 +208,7 @@ const loading = ref(false)
 const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
+let msgReactive = null
 
 const settings = [
   { name: '🎶背景音乐', component: BgmSetting },
@@ -273,42 +277,29 @@ function updateDateTime()
 }
 
 const save = async () => {
-  async function loadModule()
-  {
-    return await import('html2canvas')
+  loading.value = true
+  msgReactive = message.create('正在保存……', { type: 'loading', duration: 1e4 })
+  const div = document.getElementById('target-div')
+  const options = {
+    filter: (node) => {
+      return (!node.dashed)
+    },
+    bgcolor: 'var(--color-background)',
   }
 
-  const div = document.getElementById('target-div')
-  const canvas = document.createElement('canvas')
-  const w = div.offsetWidth
-  const h = div.offsetHeight
-  canvas.width = w * 2
-  canvas.height = h * 2
-  canvas.style.width = w + 'px'
-  canvas.style.height = h + 'px'
-  const context = canvas.getContext('2d')
-  context.scale(2, 2)
-  const html2canvas = await loadModule()
-
-  html2canvas.default(div, { canvas: canvas })
-             .then(canvas => {
-               // 将 Canvas 转换为图像数据 URL
-               const imageDataUrl = canvas.toDataURL()
-               //console.log(imageDataUrl)
-               // 创建一个 <a> 元素
-               const link = document.createElement('a')
-               link.href = imageDataUrl
-
-               // 设置下载属性
-               link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
-
-               // 模拟点击下载链接
-               link.click()
-             })
-             .catch(error => {
-               // 处理截图错误
-               console.error(error)
-             })
+  domtoimage.toSvg(div, options)
+            .then(async (data) => {
+              const doc = new DOMParser().parseFromString(data.slice(33), 'text/html')
+              doc.querySelector('#target-div > style').remove()
+              const svg = doc.querySelector('body > svg')
+              const svgUrl = 'data:image/svg+xml;charset=utf-8,' + new XMLSerializer().serializeToString(svg)
+              saveAs(svgUrl, 'seat-' + currentDate.value + '-' + currentTime.value + '.svg')
+            })
+            .then(() => {
+              msgReactive.content = '保存成功'
+              msgReactive.type = 'success'
+              loading.value = false
+            })
 }
 
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
@@ -332,7 +323,7 @@ const gacha = async () => {
   playBgm()
   const data = JSON.parse(JSON.stringify(allSeats.value))
   console.log('主线程向worker发送消息：', data)
-  worker.postMessage(data)
+  seatWorker.postMessage(data)
   setTimeout(() => {loading.value = false}, allSeats.value.length * 550)
 }
 
@@ -401,10 +392,8 @@ watch(oldRenderingList, () => {
   stKey.value = Math.random()
 })
 
-worker.onmessage = function (event) {
-  // console.log('接收到Web Worker的消息:', event.data)
+seatWorker.onmessage = function (event) {
   console.log('收到Web Worker的更新')
-  //oldRenderingList.value=getRenderingList(event.data,oldRenderingList.value)
   allSeats.value = event.data
   reloadSeatTable()
 }
