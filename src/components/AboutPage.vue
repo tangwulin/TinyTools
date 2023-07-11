@@ -1,13 +1,19 @@
 <script setup>
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
-const shout_sha =github_sha.substring(0,7)
+const revision = __REVISION__
+const now = new Date()
+const year = now.getFullYear()
+const month = now.getMonth()
+const date = now.getDate()
+const buildDate = `${ year }/${ month + 1 }/${ date }`
+const githubLink = 'https://github.com/tangwulin/TinyTools/tree/' + github_sha
 </script>
 
 <template>
   <div class="flex flex-col items-center h-full">
     <div class="mb-4">（未来的logo在这里）</div>
-    <p class="mb-8">TinyTools v{{ version }} Build {{ shout_sha }}</p>
+    <p class="mb-8">TinyTools v{{ version }} Build {{ revision }}</p>
     <p>TinyTools使用Tauri+Vite+Vue构建</p>
     <a href="" target="_blank">
       <img src="https://tauri.app/img/index/header_light.svg" alt="tauri logo" class="h-16">
@@ -39,8 +45,14 @@ const shout_sha =github_sha.substring(0,7)
       </a>
     </div>
     <div class="mt-auto text-xs">
-      <p class="mt-auto">Powered By Aurora Studio</p>
+      <p class="mt-auto flex">Powered By Aurora Studio
+        <a class="ml-auto" :href="githubLink" target="_blank">
+        #{{revision }}
+        </a>
+        &nbsp;{{ buildDate }}
+      </p>
       <p>Copyright ©2022-{{ new Date().getFullYear() }} Aurora Studio, All Rights Reserved.</p>
+
     </div>
   </div>
 </template>
