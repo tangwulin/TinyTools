@@ -9,7 +9,7 @@
                    :coloring-edge="coloringEdgeSeats"/>
       </div>
       <div class="flex justify-center mt-4">
-        <p>{{ currentDate }}--{{ currentTime }}</p>
+        <p>{{ currentDate }} {{ currentTime }}</p>
       </div>
     </div>
     <div class="flex items-center justify-center mt-8 flex-col">
@@ -18,7 +18,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="replaceSeats" :loading="loading">
+            <n-button @click="replaceSeats" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -32,7 +32,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="rollSeats(5)" :loading="loading">
+            <n-button @click="rollSeats(5)" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -53,7 +53,7 @@
             >
               <!--suppress VueUnrecognizedSlot -->
               <template #trigger>
-                <n-button :loading="loading">
+                <n-button :loading="loading" :disabled="loading ||isPreview">
                   <template #icon>
                     <n-icon>
                       <RefreshDot/>
@@ -73,7 +73,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="gacha" :loading="loading">
+            <n-button @click="gacha" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -87,7 +87,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="reSort" :loading="loading">
+            <n-button @click="reSort" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <Refresh/>
@@ -99,21 +99,21 @@
           真·随机排列座位
           <del>，六亲不认的那种</del>
         </n-tooltip>
-
       </div>
       <div> <!-- 下方工具条 -->
-        <n-tooltip trigger="hover">
-          <!--suppress VueUnrecognizedSlot -->
-          <template #trigger>
-            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>
-          </template>
-          边缘位置高亮
-        </n-tooltip>
+        <!--        <n-tooltip trigger="hover">-->
+        <!--          &lt;!&ndash;suppress VueUnrecognizedSlot &ndash;&gt;-->
+        <!--          <template #trigger>-->
+        <!--            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>-->
+        <!--          </template>-->
+        <!--          边缘位置高亮-->
+        <!--        </n-tooltip>-->
         <n-button-group>
+          <n-button @click="showHistory=true">历史记录</n-button>
           <n-button @click="showSetting=true">设置</n-button>
-          <n-button @click="showManager">人员管理</n-button>
-          <n-button @click="showMultiAddModal">增加人员</n-button>
-          <n-button @click="save" :disabled="loading">保存</n-button>
+          <n-button @click="showManager" :disabled="loading ||isPreview">人员管理</n-button>
+          <n-button @click="showMultiAddModal" :disabled="loading ||isPreview">增加人员</n-button>
+          <n-button @click="save" :disabled="loading ||isPreview">保存</n-button>
         </n-button-group>
       </div>
     </div>
@@ -145,8 +145,29 @@
         </div>
       </n-card>
     </n-modal>
+
+    <n-drawer v-model:show="showHistory" :width="'30vw'">
+      <n-drawer-content :native-scrollbar="false">
+        <template #header>
+          <p>历史记录</p>
+        </template>
+        <history-drawer v-model:is-preview="isPreview" v-model:temp="temp"/>
+        <template #footer v-if="isPreview">
+          <n-button type="error" ghost v-if="isPreview" :disabled="!isPreview" @click="exitPreview" class="ml-auto">
+            退出预览
+          </n-button>
+        </template>
+      </n-drawer-content>
+    </n-drawer>
+
+    <div class="fixed top-0 left-0 mt-4 ml-4" v-if="isPreview">
+      <n-button type="error" ghost @click="exitPreview">
+        退出预览
+      </n-button>
+    </div>
+
     <div class="fixed bottom-0 left-0 mb-2 ml-2 text-xs">
-      <p>TinyTools v{{ version }} Build <a :href="githubLink" target="_blank">#{{ revision }}</a></p>
+      <p>TinyTools v{{ version }} Build <a :href="githubLink" target="_blank">{{ revision }}</a></p>
     </div>
     <div class="fixed bottom-0 right-0 mb-2 mr-2 ">
       <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=430620198.mp3"></audio>
@@ -162,7 +183,6 @@ import {
   NCard,
   NIcon,
   NModal,
-  NSwitch,
   NTooltip,
   useMessage
 } from 'naive-ui'
@@ -172,6 +192,7 @@ import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
 import About from '../components/AboutPage.vue'
 import ImageSetting from '@/components/ImageSetting.vue'
+import HistoryDrawer from '@/components/HistoryDrawer.vue'
 import { domToPng, domToSvg } from 'modern-screenshot'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
@@ -196,15 +217,18 @@ const seatStore = useSeatStore()
 const personStore = usePersonStore()
 const settingStore = useSettingStore()
 
-const { allSeats, oldRenderingList } = storeToRefs(seatStore)
+const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
 const { coloringEdgeSeats, bgms, imageFormat, pngScale } = storeToRefs(settingStore)
 
+const temp = ref({ allSeats: null, oldRenderingList: null })
 const showSetting = ref(false)
 const showAddModal = ref(false)
+const showHistory = ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 const loading = ref(false)
+const isPreview = ref(false)
 const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
@@ -347,11 +371,20 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
   console.log('seat has been initialized')
 }
 
+const saveHistory = () => {
+  const data = {
+    time: Date.now(),
+    allSeats: [...toRaw(allSeats.value)],
+    oldRenderingList: [...toRaw(oldRenderingList.value)]
+  }
+  history.value.unshift(data)
+}
 const reSort = async () => {
   loading.value = true
   await nextTick()
   allSeats.value = shuffle(allSeats.value).map((item, index) => {return { ...item, index: index }})
   await nextTick()
+  await saveHistory()
   setTimeout(() => {loading.value = false}, 50)
 }
 
@@ -361,7 +394,10 @@ const gacha = async () => {
   const data = JSON.parse(JSON.stringify(allSeats.value))
   console.log('主线程向worker发送消息：', data)
   seatWorker.postMessage(data)
-  setTimeout(() => {loading.value = false}, allSeats.value.length * 550)
+  setTimeout(async () => {
+    await saveHistory()
+    loading.value = false
+  }, allSeats.value.length * 550)
 }
 
 const rollSeats = async (x) => {
@@ -393,6 +429,7 @@ const rollSeats = async (x) => {
           index: index
         }
       })
+      await saveHistory()
       const player = document.getElementById('player')
       player.pause()
     }
@@ -407,7 +444,10 @@ const replaceSeats = async () => {
   allSeats.value = replaceArrayElements(allSeats.value).map((item, index) => {return { ...item, index: index }})
   await nextTick()
   console.log('执行完成,用时' + (performance.now() - stopwatch) + 'ms')
-  setTimeout(() => {loading.value = false}, 50)
+  setTimeout(async () => {
+    await saveHistory()
+    loading.value = false
+  }, 50)
 }
 
 const reloadSeatTable = async () => {
@@ -416,11 +456,11 @@ const reloadSeatTable = async () => {
   console.log('SeatTable has been reload')
 }
 
-const repaint = async (x) => {
-  if (!x) allSeats.value.forEach(item => item.color = null)
-  await reloadSeatTable()
+const exitPreview = () => {
+  isPreview.value = false
+  oldRenderingList.value = temp.value.oldRenderingList
+  allSeats.value = temp.value.allSeats
 }
-
 watch(allPerson, reloadSeatTable)
 watch(allSeats, () => {
   console.log('seat changed')
