@@ -198,7 +198,7 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms, imageFormat } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms, imageFormat, pngScale } = storeToRefs(settingStore)
 
 const showSetting = ref(false)
 const showAddModal = ref(false)
@@ -294,7 +294,7 @@ const save = async () => {
       }
     },
     backgroundColor: '#FFFFFF',
-    scale: 2
+    scale: pngScale.value
   }
 
   switch (imageFormat.value)
@@ -311,6 +311,10 @@ const save = async () => {
             msgReactive.content = '保存成功'
             msgReactive.type = 'success'
             loading.value = false
+            setTimeout(() => {
+              msgReactive.destroy()
+              msgReactive = null
+            }, 3000)
           })
       break
     case 'png':
@@ -326,6 +330,10 @@ const save = async () => {
             msgReactive.content = '保存成功'
             msgReactive.type = 'success'
             loading.value = false
+            setTimeout(() => {
+              msgReactive.destroy()
+              msgReactive = null
+            }, 3000)
           })
       break
   }
