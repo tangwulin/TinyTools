@@ -15,7 +15,7 @@ const githubLink = 'https://github.com/tangwulin/TinyTools/tree/' + github_sha
     <div class="mb-4">（未来的logo在这里）</div>
     <p class="mb-8">TinyTools v{{ version }} Build {{ revision }}</p>
     <p>TinyTools使用Tauri+Vite+Vue构建</p>
-    <a href="" target="_blank">
+    <a href="https://tauri.app/" target="_blank">
       <img src="https://tauri.app/img/index/header_light.svg" alt="tauri logo" class="h-16">
     </a>
     <div class="flex flex-row" style="max-height: 100px">
