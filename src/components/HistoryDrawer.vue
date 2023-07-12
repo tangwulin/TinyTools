@@ -38,6 +38,13 @@ const isPreview = computed({
   }
 })
 
+watch(() => props.isPreview, () => {
+  if (!props.isPreview)
+  {
+    isPreview.value=false
+  }
+})
+
 const message = useMessage()
 
 const previewHandler = (x) => {

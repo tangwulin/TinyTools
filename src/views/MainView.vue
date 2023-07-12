@@ -153,7 +153,7 @@
         </template>
         <history-drawer v-model:is-preview="isPreview" v-model:temp="temp"/>
         <template #footer v-if="isPreview">
-          <n-button type="error" ghost v-if="isPreview" :disabled="!isPreview" @click="exitPreview" class="ml-auto">
+          <n-button type="error" ghost @click="exitPreview" class="ml-auto">
             退出预览
           </n-button>
         </template>
