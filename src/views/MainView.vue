@@ -146,7 +146,7 @@
       </n-card>
     </n-modal>
 
-    <n-drawer v-model:show="showHistory" :width="'30vw'">
+    <n-drawer v-model:show="showHistory" :width="'31vw'">
       <n-drawer-content :native-scrollbar="false">
         <template #header>
           <p>历史记录</p>
@@ -371,12 +371,15 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
   console.log('seat has been initialized')
 }
 
-const saveHistory = () => {
+const saveHistory = (type) => {
   const data = {
     time: Date.now(),
     allSeats: [...toRaw(allSeats.value)],
-    oldRenderingList: [...toRaw(oldRenderingList.value)]
+    oldRenderingList: [...toRaw(oldRenderingList.value)],
+    isCurrent: true,
+    type: type
   }
+  history.value = history.value.map(item => {return { ...item, isCurrent: false }})
   history.value.unshift(data)
 }
 const reSort = async () => {
@@ -384,7 +387,7 @@ const reSort = async () => {
   await nextTick()
   allSeats.value = shuffle(allSeats.value).map((item, index) => {return { ...item, index: index }})
   await nextTick()
-  await saveHistory()
+  await saveHistory('随机排列座位')
   setTimeout(() => {loading.value = false}, 50)
 }
 
@@ -395,7 +398,7 @@ const gacha = async () => {
   console.log('主线程向worker发送消息：', data)
   seatWorker.postMessage(data)
   setTimeout(async () => {
-    await saveHistory()
+    await saveHistory('抽卡！')
     loading.value = false
   }, allSeats.value.length * 550)
 }
@@ -429,7 +432,7 @@ const rollSeats = async (x) => {
           index: index
         }
       })
-      await saveHistory()
+      await saveHistory('按规则Roll座位')
       const player = document.getElementById('player')
       player.pause()
     }
@@ -445,7 +448,7 @@ const replaceSeats = async () => {
   await nextTick()
   console.log('执行完成,用时' + (performance.now() - stopwatch) + 'ms')
   setTimeout(async () => {
-    await saveHistory()
+    await saveHistory('重新排列座位')
     loading.value = false
   }, 50)
 }

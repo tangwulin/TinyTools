@@ -41,14 +41,15 @@ const isPreview = computed({
 watch(() => props.isPreview, () => {
   if (!props.isPreview)
   {
-    isPreview.value=false
+    isPreview.value = false
   }
 })
 
 const message = useMessage()
 
 const previewHandler = (x) => {
-  if (!isPreview.value){
+  if (!isPreview.value)
+  {
     isPreview.value = true
     temp.value = {
       allSeats: [...allSeats.value],
@@ -59,8 +60,28 @@ const previewHandler = (x) => {
   oldRenderingList.value = x.oldRenderingList
 }
 const rollbackHandler = (x) => {
-  allSeats.value = x.allSeats
-  oldRenderingList.value = x.oldRenderingList
+  history.value = history.value.map(item => {
+    return {
+      ...item,
+      isCurrent: false
+    }
+  }).map(item => {
+    if (item.time === x.time)
+      return { ...item, isCurrent: true }
+    else
+      return item
+  })
+  if (isPreview.value)
+  {
+    temp.value = {
+      allSeats: [...x.allSeats],
+      oldRenderingList: [...x.oldRenderingList]
+    }
+    isPreview.value = false
+  }
+    allSeats.value = x.allSeats
+    oldRenderingList.value = x.oldRenderingList
+
   message.info('已回滚到' + new Date(x.time).toLocaleString())
 }
 const delHandler = (x) => {
@@ -77,7 +98,13 @@ const delHandler = (x) => {
       <n-list-item v-for="item in history">
         <n-popover trigger="hover" placement="left" id="popover" style="width: 42.5vw;height: 34vh">
           <template #trigger>
-            <n-button text @click="previewHandler(item)">{{ new Date(item.time).toLocaleString() }}</n-button>
+            <div class="flex flex-col">
+              <n-button text @click="previewHandler(item)">{{ new Date(item.time).toLocaleString() }}</n-button>
+              <n-space justify="center">
+                <n-tag v-if="item.isCurrent" :bordered="false" type="success">当前</n-tag>
+                <n-tag :bordered="false" type="info">{{ item.type }}</n-tag>
+              </n-space>
+            </div>
           </template>
 
           <div id="preview" class="flex flex-col items-center justify-center">
