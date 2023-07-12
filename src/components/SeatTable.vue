@@ -97,17 +97,15 @@ watch(() => props.coloringEdge, () => {
 
 <template>
   <div>
-    <div class="flex items-center justify-center h-1/2">
-      <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true"
-                 class="text-center h-1/2 grid grid-cols-11" item-key="id">
-        <!--suppress VueUnrecognizedSlot -->
-        <template #item="{ element }">
-          <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
-          <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
-          <NButton v-else size="large" dashed :focusable="false" class="should-not-be-dragged"></NButton>
-        </template>
-      </draggable>
-    </div>
+    <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true"
+               class="text-center  grid grid-cols-11" item-key="id">
+      <!--suppress VueUnrecognizedSlot -->
+      <template #item="{ element }">
+        <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
+        <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
+        <NButton v-else size="large" dashed :focusable="false" class="should-not-be-dragged"></NButton>
+      </template>
+    </draggable>
   </div>
 </template>
 
