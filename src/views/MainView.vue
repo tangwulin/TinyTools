@@ -376,7 +376,21 @@ const save = async () => {
       break
   }
 }
-
+if (allSeats.value === null || oldRenderingList.value === null)
+{
+  if (history.value.length !== 0)
+  {
+    allSeats.value = history.value[0].allSeats
+    oldRenderingList.value = history.value[0].oldRenderingList
+  }
+  else
+  {
+    allSeats.value = allPerson.value.map((name, index) => {
+      return { name: name, index: index, isSeat: true }
+    })
+    oldRenderingList.value = getRenderingList(allSeats.value, [])
+  }
+}
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
 {
   allSeats.value = allPerson.value.map((name, index) => {
