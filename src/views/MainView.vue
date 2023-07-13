@@ -11,7 +11,7 @@
             :key="stKey"
             :coloring-edge="coloringEdgeSeats"
             @update="updateHandler"
-            :disable="isPreview"
+            :disable="isPreview || loading"
         />
       </div>
       <div class="flex justify-center mt-4">
