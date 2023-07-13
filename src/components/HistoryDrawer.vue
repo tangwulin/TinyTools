@@ -56,6 +56,12 @@ const previewHandler = (x) => {
       oldRenderingList: [...oldRenderingList.value]
     }
   }
+  history.value = history.value.map(item => {
+    if (item.time === x.time)
+      return { ...item, isShowing: true }
+    else
+      return { ...item, isShowing: false }
+  })
   allSeats.value = x.allSeats
   oldRenderingList.value = x.oldRenderingList
 }
@@ -63,7 +69,8 @@ const rollbackHandler = (x) => {
   history.value = history.value.map(item => {
     return {
       ...item,
-      isCurrent: false
+      isCurrent: false,
+      isShowing:false
     }
   }).map(item => {
     if (item.time === x.time)
@@ -101,7 +108,8 @@ const delHandler = (x) => {
             <div class="flex flex-col">
               <n-button text @click="previewHandler(item)">{{ new Date(item.time).toLocaleString() }}</n-button>
               <n-space justify="center">
-                <n-tag v-if="item.isCurrent" :bordered="false" type="success">当前</n-tag>
+                <n-tag v-if="item.isShowing" :bordered="false" type="warning">当前展示</n-tag>
+                <n-tag v-else-if="item.isCurrent" :bordered="false" type="success">实际座位</n-tag>
                 <n-tag :bordered="false" type="info">{{ item.type }}</n-tag>
               </n-space>
             </div>
