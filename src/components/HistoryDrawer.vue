@@ -109,7 +109,7 @@ const delHandler = (x) => {
 
           <div id="preview" class="flex flex-col items-center justify-center">
             <n-button :size='"large"'>讲台</n-button>
-            <SeatTable :seats="item.allSeats" :rendering-list="item.oldRenderingList"/>
+            <SeatTable :seats="item.allSeats" :rendering-list="item.oldRenderingList" :disable="true"/>
           </div>
         </n-popover>
         <template #suffix>

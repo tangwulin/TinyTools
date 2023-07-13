@@ -5,8 +5,14 @@
         <n-button :size='"large"'>讲台</n-button>
       </div>
       <div>
-        <SeatTable v-model:seats="allSeats" v-model:rendering-list="oldRenderingList" :key="stKey"
-                   :coloring-edge="coloringEdgeSeats"/>
+        <SeatTable
+            v-model:seats="allSeats"
+            v-model:rendering-list="oldRenderingList"
+            :key="stKey"
+            :coloring-edge="coloringEdgeSeats"
+            @update="updateHandler"
+            :disable="isPreview"
+        />
       </div>
       <div class="flex justify-center mt-4">
         <p>{{ currentDate }} {{ currentTime }}</p>

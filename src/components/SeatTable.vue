@@ -70,7 +70,7 @@ const renderingList = computed({
   {
     console.log('renderingList changed onPropChanging:' + onPropChanging)
     _renderingList.value = [...value]
-    oldRenderingList.value = getRenderingList(parseRenderingListToSeats(value),value)
+    oldRenderingList.value = getRenderingList(parseRenderingListToSeats(value), value)
     if (onPropChanging)
     {
       onPropChanging = false
@@ -97,8 +97,13 @@ watch(() => props.coloringEdge, () => {
 
 <template>
   <div>
-    <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true"
-               class="text-center  grid grid-cols-11" item-key="id">
+    <draggable
+        v-model="renderingList"
+        filter=".should-not-be-dragged"
+        :swap="true"
+        :disabled="disable"
+        class="text-center  grid grid-cols-11"
+        item-key="id">
       <!--suppress VueUnrecognizedSlot -->
       <template #item="{ element }">
         <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
