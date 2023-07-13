@@ -492,10 +492,15 @@ const exitPreview = () => {
   allSeats.value = temp.value.allSeats
   history.value = history.value.map(item => {return { ...item, isShowing: false }})
 }
+
+window.addEventListener('beforeunload', isPreview ? exitPreview : () => {})
+
 watch(allPerson, reloadSeatTable)
+
 watch(allSeats, () => {
   console.log('seat changed')
 })
+
 watch(oldRenderingList, () => {
   stKey.value = Math.random()
 })
