@@ -380,7 +380,7 @@ const save = async () => {
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
 {
   allSeats.value = allPerson.value.map((name, index) => {
-    return { name: name, index: index }
+    return { name: name, index: index, isSeat: true }
   })
   console.log('seat has been initialized')
 }
