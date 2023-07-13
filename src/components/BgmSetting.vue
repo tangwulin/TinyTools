@@ -6,7 +6,8 @@ import { InfoFilled } from '@vicons/material'
 import { useSettingStore } from '@/stores/setting'
 import { NButton, NCard, NDataTable, NForm, NModal, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { generateUniqueId, getDefaultMusic } from '../assets/script/musicHelper'
+import { generateUniqueId, getDefaultMusic } from '@/assets/script/musicHelper'
+import { debounce } from 'lodash-es'
 
 const message = useMessage()
 const setting = useSettingStore()
@@ -20,6 +21,8 @@ const dtKey = ref(Math.random())
 onMounted(() => {
   tableHeight.value = document.getElementById('settingContainer').clientHeight - 1
 })
+
+window.addEventListener('resize', debounce(() => {tableHeight.value = document.getElementById('settingContainer').clientHeight - 1}, 200))
 
 const addHandler = () => {
   showEditModal.value = true
