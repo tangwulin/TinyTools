@@ -119,7 +119,21 @@
           <n-button @click="showSetting=true">设置</n-button>
           <n-button @click="showManager" :disabled="loading ||isPreview">人员管理</n-button>
           <n-button @click="showMultiAddModal" :disabled="loading ||isPreview">增加人员</n-button>
-          <n-button @click="save" :disabled="loading ||isPreview">保存</n-button>
+          <n-dropdown
+              :options="saveOptions"
+              @select="save"
+          >
+            <n-button
+                icon-placement="right"
+                :disabled="loading ||isPreview"
+                @click="enableQuickSave ? save(scale) : ()=>{}"
+            >
+              <template #icon>
+                <ArrowDropDownFilled/>
+              </template>
+              保存图片
+            </n-button>
+          </n-dropdown>
         </n-button-group>
       </div>
     </div>
@@ -199,13 +213,14 @@ import {
   useMessage
 } from 'naive-ui'
 import { Refresh, RefreshDot } from '@vicons/tabler'
+import { ArrowDropDownFilled } from '@vicons/material'
 import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
 import About from '../components/AboutPage.vue'
 import ImageSetting from '@/components/ImageSetting.vue'
 import HistoryDrawer from '@/components/HistoryDrawer.vue'
-import { domToPng, domToSvg } from 'modern-screenshot'
+import { domToPng } from 'modern-screenshot'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
@@ -231,7 +246,7 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms, isBGMInitialized, imageFormat, pngScale } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms, isBGMInitialized, scale, enableQuickSave } = storeToRefs(settingStore)
 
 const temp = ref({ allSeats: null, oldRenderingList: null })
 const showSetting = ref(false)
@@ -316,7 +331,22 @@ function updateDateTime()
 
 const updateHandler = debounce(() => {saveHistory('手动更改')}, 100, { maxWait: 2000 })
 
-const save = async () => {
+const saveOptions = [
+  {
+    label: '图片分辨率（宽度）',
+    key: 1,
+    disabled: true
+  },
+  {
+    label: '1080P（默认）',
+    key: 2,
+
+  }, {
+    label: '4K',
+    key: 4,
+  },
+]
+const save = async (x) => {
   loading.value = true
   msgReactive = message.create('正在生成图片……', { type: 'loading', duration: 0 })
 
@@ -333,49 +363,25 @@ const save = async () => {
       }
     },
     backgroundColor: '#FFFFFF',
-    scale: pngScale.value
+    scale: 960 * x / target.clientWidth
   }
-
-  switch (imageFormat.value)
-  {
-    case 'svg':
-      domToSvg(target, options)
-          .then(dataUrl => {
-            const link = document.createElement('a')
-            link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.svg'
-            link.href = dataUrl
-            link.click()
-          })
-          .then(() => {
-            msgReactive.content = '保存成功'
-            msgReactive.type = 'success'
-            loading.value = false
-            setTimeout(() => {
-              msgReactive.destroy()
-              msgReactive = null
-            }, 3000)
-          })
-      break
-    case 'png':
-    default:
-      domToPng(target, options)
-          .then(dataUrl => {
-            const link = document.createElement('a')
-            link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
-            link.href = dataUrl
-            link.click()
-          })
-          .then(() => {
-            msgReactive.content = '保存成功'
-            msgReactive.type = 'success'
-            loading.value = false
-            setTimeout(() => {
-              msgReactive.destroy()
-              msgReactive = null
-            }, 3000)
-          })
-      break
-  }
+  scale.value = x
+  domToPng(target, options)
+      .then(dataUrl => {
+        const link = document.createElement('a')
+        link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
+        link.href = dataUrl
+        link.click()
+      })
+      .then(() => {
+        msgReactive.content = '保存成功'
+        msgReactive.type = 'success'
+        loading.value = false
+        setTimeout(() => {
+          msgReactive.destroy()
+          msgReactive = null
+        }, 3000)
+      })
 }
 if (allSeats.value === null || oldRenderingList.value === null)
 {
