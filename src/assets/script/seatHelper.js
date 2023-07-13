@@ -25,20 +25,17 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
     console.log('Calculation mode')
     console.log(oldRenderingList)
     const result =
-      x
-        .map(item => ({
-          name: item.name, isSeat: true, index: item.index, color: item.color
-        }))
-        .flatMap((value, index) => {
-          if ((index + 1) % 2 === 0 && (index + 1) % 8 !== 0)
-          {
-            return [value, { name: null, isSeat: false }]
-          }
-          else
-          {
-            return value
-          }
-        })
+      x.map(item => {return { ...item, isSeat: true }})
+       .flatMap((value, index) => {
+         if ((index + 1) % 2 === 0 && (index + 1) % 8 !== 0)
+         {
+           return [value, { name: null, isSeat: false }]
+         }
+         else
+         {
+           return value
+         }
+       })
     console.log('convert time:' + (performance.now() - stopwatch) + 'ms')
     stopwatch = performance.now()
     const remaining = 11 - (result.length % 11)
@@ -68,10 +65,8 @@ export const getRenderingList = (seat = [], oldRenderingList = [], coloringEdge 
       if (item.isSeat)
       {
         i++
-        //const i = item.index
         if (x[i].isSeat) return { ...x[i], isSeat: true }
         else return x[i]
-
       }
       else return item
     })
