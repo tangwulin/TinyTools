@@ -231,7 +231,7 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms, imageFormat, pngScale } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms, isBGMInitialized, imageFormat, pngScale } = storeToRefs(settingStore)
 
 const temp = ref({ allSeats: null, oldRenderingList: null })
 const showSetting = ref(false)
@@ -258,6 +258,7 @@ let currentSetting = settings[0]
 if (bgms.value.length === 0)
 {
   bgms.value = getDefaultMusic()
+  isBGMInitialized.value = true
 }
 
 let bgmList = shuffle(toRaw(bgms.value))
