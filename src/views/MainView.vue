@@ -172,6 +172,12 @@
       </n-button>
     </div>
 
+    <div class="fixed top-0 right-0 mt-4 mr-4" v-if="isPreview">
+      <n-button type="success" ghost @click="saveHistory('手动保存')">
+        保存当前
+      </n-button>
+    </div>
+
     <div class="fixed bottom-0 left-0 mb-2 ml-2 text-xs">
       <p>TinyTools v{{ version }} Build <a :href="githubLink" target="_blank">{{ revision }}</a></p>
     </div>
