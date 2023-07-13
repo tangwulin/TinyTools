@@ -167,13 +167,13 @@
     </n-drawer>
 
     <div class="fixed top-0 left-0 mt-4 ml-4" v-if="isPreview">
-      <n-button type="error" ghost @click="exitPreview">
+      <n-button type="error" @click="exitPreview">
         退出预览
       </n-button>
     </div>
 
     <div class="fixed top-0 right-0 mt-4 mr-4" v-if="isPreview">
-      <n-button type="success" ghost @click="saveHistory('手动保存')">
+      <n-button type="success" @click="saveHistory('手动保存')">
         保存当前
       </n-button>
     </div>
