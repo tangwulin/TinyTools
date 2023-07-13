@@ -204,8 +204,8 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements } from '@/assets/script/seatHelper'
-import { shuffle } from 'lodash-es'
+import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
+import { debounce, shuffle } from 'lodash-es'
 import { getDefaultMusic } from '@/assets/script/musicHelper'
 
 const version = __APP_VERSION__
@@ -307,6 +307,8 @@ function updateDateTime()
   currentTime.value = time
 }
 
+const updateHandler = debounce(() => {saveHistory('手动更改')}, 100, { maxWait: 2000 })
+
 const save = async () => {
   loading.value = true
   msgReactive = message.create('正在生成图片……', { type: 'loading', duration: 0 })
@@ -386,7 +388,20 @@ const saveHistory = (type) => {
     type: type
   }
   history.value = history.value.map(item => {return { ...item, isCurrent: false }})
-  history.value.unshift(data)
+  if (history.value.length !== 0 && history.value[0].type === '手动更改')
+  {
+    if (data.time - history.value[0].time > 60 * 1000)
+      history.value.unshift(data)
+    else
+      history.value[0] = data
+  }
+  else
+  {
+    history.value = history.value.map(item => {return { ...item, isCurrent: false, isShowing: false }})
+    history.value.unshift(data)
+  }
+  isPreview.value = false
+  if (type === '手动保存' || type === '手动更改') message.success('保存成功')
 }
 const reSort = async () => {
   loading.value = true
@@ -469,6 +484,7 @@ const exitPreview = () => {
   isPreview.value = false
   oldRenderingList.value = temp.value.oldRenderingList
   allSeats.value = temp.value.allSeats
+  history.value = history.value.map(item => {return { ...item, isShowing: false }})
 }
 watch(allPerson, reloadSeatTable)
 watch(allSeats, () => {

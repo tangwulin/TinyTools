@@ -86,8 +86,8 @@ const rollbackHandler = (x) => {
     }
     isPreview.value = false
   }
-    allSeats.value = x.allSeats
-    oldRenderingList.value = x.oldRenderingList
+  allSeats.value = x.allSeats
+  oldRenderingList.value = x.oldRenderingList
 
   message.info('已回滚到' + new Date(x.time).toLocaleString())
 }
