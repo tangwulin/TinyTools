@@ -115,7 +115,7 @@
         <!--          边缘位置高亮-->
         <!--        </n-tooltip>-->
         <n-button-group>
-          <n-button @click="showHistory=true">历史记录</n-button>
+          <n-button @click="showHistory=true" :disabled="loading">历史记录</n-button>
           <n-button @click="showSetting=true">设置</n-button>
           <n-button @click="showManager" :disabled="loading ||isPreview">人员管理</n-button>
           <n-button @click="showMultiAddModal" :disabled="loading ||isPreview">增加人员</n-button>
