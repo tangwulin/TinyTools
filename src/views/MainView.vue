@@ -5,11 +5,17 @@
         <n-button :size='"large"'>讲台</n-button>
       </div>
       <div>
-        <SeatTable v-model:seats="allSeats" v-model:rendering-list="oldRenderingList" :key="stKey"
-                   :coloring-edge="coloringEdgeSeats"/>
+        <SeatTable
+            v-model:seats="allSeats"
+            v-model:rendering-list="oldRenderingList"
+            :key="stKey"
+            :coloring-edge="coloringEdgeSeats"
+            @update="updateHandler"
+            :disable="isPreview || loading"
+        />
       </div>
       <div class="flex justify-center mt-4">
-        <p>{{ currentDate }}--{{ currentTime }}</p>
+        <p>{{ currentDate }} {{ currentTime }}</p>
       </div>
     </div>
     <div class="flex items-center justify-center mt-8 flex-col">
@@ -18,7 +24,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="replaceSeats" :loading="loading">
+            <n-button @click="replaceSeats" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -32,7 +38,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="rollSeats(5)" :loading="loading">
+            <n-button @click="rollSeats(5)" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -53,7 +59,7 @@
             >
               <!--suppress VueUnrecognizedSlot -->
               <template #trigger>
-                <n-button :loading="loading">
+                <n-button :loading="loading" :disabled="loading ||isPreview">
                   <template #icon>
                     <n-icon>
                       <RefreshDot/>
@@ -73,7 +79,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="gacha" :loading="loading">
+            <n-button @click="gacha" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <RefreshDot/>
@@ -87,7 +93,7 @@
         <n-tooltip trigger="hover">
           <!--suppress VueUnrecognizedSlot -->
           <template #trigger>
-            <n-button @click="reSort" :loading="loading">
+            <n-button @click="reSort" :loading="loading" :disabled="loading ||isPreview">
               <template #icon>
                 <n-icon>
                   <Refresh/>
@@ -99,21 +105,35 @@
           真·随机排列座位
           <del>，六亲不认的那种</del>
         </n-tooltip>
-
       </div>
       <div> <!-- 下方工具条 -->
-        <n-tooltip trigger="hover">
-          <!--suppress VueUnrecognizedSlot -->
-          <template #trigger>
-            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>
-          </template>
-          边缘位置高亮
-        </n-tooltip>
+        <!--        <n-tooltip trigger="hover">-->
+        <!--          &lt;!&ndash;suppress VueUnrecognizedSlot &ndash;&gt;-->
+        <!--          <template #trigger>-->
+        <!--            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>-->
+        <!--          </template>-->
+        <!--          边缘位置高亮-->
+        <!--        </n-tooltip>-->
         <n-button-group>
+          <n-button @click="showHistory=true" :disabled="loading">历史记录</n-button>
           <n-button @click="showSetting=true">设置</n-button>
-          <n-button @click="showManager">人员管理</n-button>
-          <n-button @click="showMultiAddModal">增加人员</n-button>
-          <n-button @click="save" :disabled="loading">保存</n-button>
+          <n-button @click="showManager" :disabled="loading ||isPreview">人员管理</n-button>
+          <n-button @click="showMultiAddModal" :disabled="loading ||isPreview">增加人员</n-button>
+          <n-dropdown
+              :options="saveOptions"
+              @select="save"
+          >
+            <n-button
+                icon-placement="right"
+                :disabled="loading ||isPreview"
+                @click="enableQuickSave ? save(scale) : ()=>{}"
+            >
+              <template #icon>
+                <ArrowDropDownFilled/>
+              </template>
+              保存图片
+            </n-button>
+          </n-dropdown>
         </n-button-group>
       </div>
     </div>
@@ -145,8 +165,35 @@
         </div>
       </n-card>
     </n-modal>
+
+    <n-drawer v-model:show="showHistory" :width="'31vw'">
+      <n-drawer-content :native-scrollbar="false">
+        <template #header>
+          <p>历史记录</p>
+        </template>
+        <history-drawer v-model:is-preview="isPreview" v-model:temp="temp"/>
+        <template #footer v-if="isPreview">
+          <n-button type="error" ghost @click="exitPreview" class="ml-auto">
+            退出预览
+          </n-button>
+        </template>
+      </n-drawer-content>
+    </n-drawer>
+
+    <div class="fixed top-0 left-0 mt-4 ml-4" v-if="isPreview">
+      <n-button type="error" @click="exitPreview">
+        退出预览
+      </n-button>
+    </div>
+
+    <div class="fixed top-0 right-0 mt-4 mr-4" v-if="isPreview">
+      <n-button type="success" @click="saveHistory('手动保存')">
+        保存当前
+      </n-button>
+    </div>
+
     <div class="fixed bottom-0 left-0 mb-2 ml-2 text-xs">
-      <p>TinyTools v{{ version }} Build <a :href="githubLink" target="_blank">#{{ revision }}</a></p>
+      <p>TinyTools v{{ version }} Build <a :href="githubLink" target="_blank">{{ revision }}</a></p>
     </div>
     <div class="fixed bottom-0 right-0 mb-2 mr-2 ">
       <audio controls id="player" src="https://music.163.com/song/media/outer/url?id=430620198.mp3"></audio>
@@ -162,23 +209,24 @@ import {
   NCard,
   NIcon,
   NModal,
-  NSwitch,
   NTooltip,
   useMessage
 } from 'naive-ui'
 import { Refresh, RefreshDot } from '@vicons/tabler'
+import { ArrowDropDownFilled } from '@vicons/material'
 import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from '@/components/BgmSetting.vue'
 import PersonManage from '@/components/PersonManage.vue'
 import About from '../components/AboutPage.vue'
 import ImageSetting from '@/components/ImageSetting.vue'
-import { domToPng, domToSvg } from 'modern-screenshot'
+import HistoryDrawer from '@/components/HistoryDrawer.vue'
+import { domToPng } from 'modern-screenshot'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { replaceArrayElements } from '@/assets/script/seatHelper'
-import { shuffle } from 'lodash-es'
+import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
+import { debounce, shuffle } from 'lodash-es'
 import { getDefaultMusic } from '@/assets/script/musicHelper'
 
 const version = __APP_VERSION__
@@ -196,15 +244,18 @@ const seatStore = useSeatStore()
 const personStore = usePersonStore()
 const settingStore = useSettingStore()
 
-const { allSeats, oldRenderingList } = storeToRefs(seatStore)
+const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms, imageFormat } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms, isBGMInitialized, scale, enableQuickSave } = storeToRefs(settingStore)
 
+const temp = ref({ allSeats: null, oldRenderingList: null })
 const showSetting = ref(false)
 const showAddModal = ref(false)
+const showHistory = ref(false)
 const currentDate = ref('')
 const currentTime = ref('')
 const loading = ref(false)
+const isPreview = ref(false)
 const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
@@ -222,6 +273,7 @@ let currentSetting = settings[0]
 if (bgms.value.length === 0)
 {
   bgms.value = getDefaultMusic()
+  isBGMInitialized.value = true
 }
 
 let bgmList = shuffle(toRaw(bgms.value))
@@ -277,7 +329,24 @@ function updateDateTime()
   currentTime.value = time
 }
 
-const save = async () => {
+const updateHandler = debounce(() => {saveHistory('手动更改')}, 100, { maxWait: 2000 })
+
+const saveOptions = [
+  {
+    label: '图片分辨率（宽度）',
+    key: 1,
+    disabled: true
+  },
+  {
+    label: '1080P（默认）',
+    key: 2,
+
+  }, {
+    label: '4K',
+    key: 4,
+  },
+]
+const save = async (x) => {
   loading.value = true
   msgReactive = message.create('正在生成图片……', { type: 'loading', duration: 0 })
 
@@ -294,56 +363,79 @@ const save = async () => {
       }
     },
     backgroundColor: '#FFFFFF',
-    scale: 2
+    scale: 960 * x / target.clientWidth
   }
-
-  switch (imageFormat.value)
+  scale.value = x
+  domToPng(target, options)
+      .then(dataUrl => {
+        const link = document.createElement('a')
+        link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
+        link.href = dataUrl
+        link.click()
+      })
+      .then(() => {
+        msgReactive.content = '保存成功'
+        msgReactive.type = 'success'
+        loading.value = false
+        setTimeout(() => {
+          msgReactive.destroy()
+          msgReactive = null
+        }, 3000)
+      })
+}
+if (allSeats.value === null || oldRenderingList.value === null)
+{
+  if (history.value.length !== 0)
   {
-    case 'svg':
-      domToSvg(target, options)
-          .then(dataUrl => {
-            const link = document.createElement('a')
-            link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.svg'
-            link.href = dataUrl
-            link.click()
-          })
-          .then(() => {
-            msgReactive.content = '保存成功'
-            msgReactive.type = 'success'
-            loading.value = false
-          })
-      break
-    case 'png':
-    default:
-      domToPng(target, options)
-          .then(dataUrl => {
-            const link = document.createElement('a')
-            link.download = 'seat-' + currentDate.value + '-' + currentTime.value + '.png'
-            link.href = dataUrl
-            link.click()
-          })
-          .then(() => {
-            msgReactive.content = '保存成功'
-            msgReactive.type = 'success'
-            loading.value = false
-          })
-      break
+    allSeats.value = history.value[0].allSeats
+    oldRenderingList.value = history.value[0].oldRenderingList
+  }
+  else
+  {
+    allSeats.value = allPerson.value.map((name, index) => {
+      return { name: name, index: index, isSeat: true }
+    })
+    oldRenderingList.value = getRenderingList(allSeats.value, [])
   }
 }
-
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
 {
   allSeats.value = allPerson.value.map((name, index) => {
-    return { name: name, index: index }
+    return { name: name, index: index, isSeat: true }
   })
   console.log('seat has been initialized')
 }
 
+const saveHistory = (type) => {
+  const data = {
+    time: Date.now(),
+    allSeats: [...toRaw(allSeats.value)],
+    oldRenderingList: [...toRaw(oldRenderingList.value)],
+    isCurrent: true,
+    type: type
+  }
+  history.value = history.value.map(item => {return { ...item, isCurrent: false }})
+  if (history.value.length !== 0 && history.value[0].type === '手动更改')
+  {
+    if (data.time - history.value[0].time > 60 * 1000)
+      history.value.unshift(data)
+    else
+      history.value[0] = data
+  }
+  else
+  {
+    history.value = history.value.map(item => {return { ...item, isCurrent: false, isShowing: false }})
+    history.value.unshift(data)
+  }
+  isPreview.value = false
+  if (type === '手动保存' || type === '手动更改') message.success('保存成功')
+}
 const reSort = async () => {
   loading.value = true
   await nextTick()
   allSeats.value = shuffle(allSeats.value).map((item, index) => {return { ...item, index: index }})
   await nextTick()
+  await saveHistory('随机排列座位')
   setTimeout(() => {loading.value = false}, 50)
 }
 
@@ -353,7 +445,10 @@ const gacha = async () => {
   const data = JSON.parse(JSON.stringify(allSeats.value))
   console.log('主线程向worker发送消息：', data)
   seatWorker.postMessage(data)
-  setTimeout(() => {loading.value = false}, allSeats.value.length * 550)
+  setTimeout(async () => {
+    await saveHistory('抽卡！')
+    loading.value = false
+  }, allSeats.value.length * 550)
 }
 
 const rollSeats = async (x) => {
@@ -385,6 +480,7 @@ const rollSeats = async (x) => {
           index: index
         }
       })
+      await saveHistory('按规则Roll座位')
       const player = document.getElementById('player')
       player.pause()
     }
@@ -399,7 +495,10 @@ const replaceSeats = async () => {
   allSeats.value = replaceArrayElements(allSeats.value).map((item, index) => {return { ...item, index: index }})
   await nextTick()
   console.log('执行完成,用时' + (performance.now() - stopwatch) + 'ms')
-  setTimeout(() => {loading.value = false}, 50)
+  setTimeout(async () => {
+    await saveHistory('重新排列座位')
+    loading.value = false
+  }, 50)
 }
 
 const reloadSeatTable = async () => {
@@ -408,15 +507,21 @@ const reloadSeatTable = async () => {
   console.log('SeatTable has been reload')
 }
 
-const repaint = async (x) => {
-  if (!x) allSeats.value.forEach(item => item.color = null)
-  await reloadSeatTable()
+const exitPreview = () => {
+  isPreview.value = false
+  oldRenderingList.value = temp.value.oldRenderingList
+  allSeats.value = temp.value.allSeats
+  history.value = history.value.map(item => {return { ...item, isShowing: false }})
 }
 
+window.addEventListener('beforeunload', isPreview ? exitPreview : () => {})
+
 watch(allPerson, reloadSeatTable)
+
 watch(allSeats, () => {
   console.log('seat changed')
 })
+
 watch(oldRenderingList, () => {
   stKey.value = Math.random()
 })

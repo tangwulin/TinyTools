@@ -4,7 +4,7 @@ import draggable from 'vuedraggable-swap'
 import { computed, ref, watch } from 'vue'
 import { getRenderingList, parseRenderingListToSeats } from '@/assets/script/seatHelper'
 
-const props = defineProps(['seats', 'renderingList', 'coloringEdge', 'rendering'])
+const props = defineProps(['seats', 'renderingList', 'coloringEdge', 'rendering', 'disable'])
 const emit = defineEmits(['update', 'update:seats', 'update:renderingList', 'update:rendering'])
 
 const rendering = ref(props.rendering)
@@ -70,7 +70,7 @@ const renderingList = computed({
   {
     console.log('renderingList changed onPropChanging:' + onPropChanging)
     _renderingList.value = [...value]
-    oldRenderingList.value = getRenderingList(parseRenderingListToSeats(value),value)
+    oldRenderingList.value = getRenderingList(parseRenderingListToSeats(value), value)
     if (onPropChanging)
     {
       onPropChanging = false
@@ -79,6 +79,7 @@ const renderingList = computed({
     {
       onRenderingChanging = true
       seats.value = parseRenderingListToSeats(value)
+      emit('update')
     }
     emit('update:renderingList', value)
   }
@@ -97,17 +98,20 @@ watch(() => props.coloringEdge, () => {
 
 <template>
   <div>
-    <div class="flex items-center justify-center h-1/2">
-      <draggable v-model="renderingList" filter=".should-not-be-dragged" :swap="true"
-                 class="text-center h-1/2 grid grid-cols-11" item-key="id">
-        <!--suppress VueUnrecognizedSlot -->
-        <template #item="{ element }">
-          <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
-          <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
-          <NButton v-else size="large" dashed :focusable="false" class="should-not-be-dragged"></NButton>
-        </template>
-      </draggable>
-    </div>
+    <draggable
+        v-model="renderingList"
+        filter=".should-not-be-dragged"
+        :swap="true"
+        :disabled="disable"
+        class="text-center  grid grid-cols-11"
+        item-key="id">
+      <!--suppress VueUnrecognizedSlot -->
+      <template #item="{ element }">
+        <NButton v-if="element.isSeat" :color="element.color" size="large">{{ element.name }}</NButton>
+        <div v-else-if="!element.isDashed" class="should-not-be-dragged"></div>
+        <NButton v-else size="large" dashed :focusable="false" class="should-not-be-dragged"></NButton>
+      </template>
+    </draggable>
   </div>
 </template>
 

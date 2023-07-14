@@ -6,9 +6,9 @@ export const useSettingStore = defineStore('setting', () => {
     const bgms = ref([])
     const isBGMInitialized = ref(false)
 
-    const imageFormat = ref('png')
-    const pngScale = ref(2)
-    return { coloringEdgeSeats, bgms, isBGMInitialized, imageFormat,pngScale }
+    const scale = ref(2)
+    const enableQuickSave = ref(false)
+    return { coloringEdgeSeats, bgms, isBGMInitialized, scale, enableQuickSave }
   },
   {
     persist: true
