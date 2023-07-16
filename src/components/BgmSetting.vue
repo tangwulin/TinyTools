@@ -6,12 +6,12 @@ import { InfoFilled } from '@vicons/material'
 import { useSettingStore } from '@/stores/setting'
 import { NButton, NCard, NDataTable, NForm, NModal, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { generateUniqueId, getDefaultMusic } from '@/assets/script/musicHelper'
+import { generateUniqueId, getDefaultBgm,getDefaultFinalBgm } from '@/assets/script/musicHelper'
 import { debounce } from 'lodash-es'
 
 const message = useMessage()
 const setting = useSettingStore()
-const { bgms, isBGMInitialized } = storeToRefs(setting)
+const { bgms,finalBgms, isBGMInitialized } = storeToRefs(setting)
 
 const showEditModal = ref(false)
 const formData = ref({ name: '', url: '', offset: 0, uniqueId: '' })
@@ -66,7 +66,7 @@ const cardTitle = computed(() => {return isEdit ? '编辑' : '添加'})
 if (bgms.value.length === 0 && !isBGMInitialized.value)
 {
   isBGMInitialized.value = true
-  bgms.value = getDefaultMusic()
+  bgms.value = getDefaultBgm()
 }
 
 const createColumns = (play, edit, del) => {
@@ -100,7 +100,8 @@ const createColumns = (play, edit, del) => {
                     class: 'p-2',
                     renderIcon: () => {return h(Refresh)},
                     onClick: () => {
-                      bgms.value = getDefaultMusic()
+                      bgms.value = getDefaultBgm()
+                      finalBgms.value = getDefaultFinalBgm()
                       message.success('重置成功')
                     }
                   },

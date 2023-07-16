@@ -227,7 +227,7 @@ import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
 import { debounce, shuffle } from 'lodash-es'
-import { getDefaultMusic } from '@/assets/script/musicHelper'
+import { getDefaultBgm,getDefaultFinalBgm } from '@/assets/script/musicHelper'
 
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
@@ -246,7 +246,7 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms, isBGMInitialized, scale, enableQuickSave } = storeToRefs(settingStore)
+const { coloringEdgeSeats, bgms, finalBgms, isBGMInitialized, scale, enableQuickSave } = storeToRefs(settingStore)
 
 const temp = ref({ allSeats: null, oldRenderingList: null })
 const showSetting = ref(false)
@@ -270,14 +270,18 @@ const settings = [
 
 let currentSetting = settings[0]
 
-if (bgms.value.length === 0)
+if (bgms.value.length === 0||finalBgms.value.length === 0)
 {
-  bgms.value = getDefaultMusic()
+  bgms.value = getDefaultBgm()
+  finalBgms.value = getDefaultFinalBgm()
   isBGMInitialized.value = true
 }
 
 let bgmList = shuffle(toRaw(bgms.value))
 let bgmIndex = 0
+
+let finalBgmList = shuffle(toRaw(finalBgms.value))
+let finalBgmIndex = 0
 
 const showManager = () => {
   currentSetting = { name: '💁人员管理', component: PersonManage }
@@ -328,6 +332,14 @@ const playBgm = () => {
 const pauseBgm = () => {
   const player = document.getElementById('player')
   player.pause()
+}
+
+const playFinalBgm = () => {
+  const bgm = finalBgmList[finalBgmIndex]
+  console.log(finalBgmList)
+  if (finalBgmIndex < finalBgmList.length - 1) finalBgmIndex++
+  else finalBgmIndex = 0
+  play(bgm)
 }
 
 // 在组件挂载时开始更新日期和时间
@@ -493,6 +505,7 @@ const gacha = async () => {
     pauseBgm()
     await saveHistory('抽卡！')
     loading.value = false
+    playFinalBgm()
   }, allSeats.value.length * 550)
 }
 /**
@@ -531,6 +544,7 @@ const rollSeats = async (x) => {
       })
       await saveHistory('按规则Roll座位')
       pauseBgm()
+      playFinalBgm()
     }
   }, 500)
 }
