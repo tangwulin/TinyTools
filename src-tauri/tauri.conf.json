@@ -73,11 +73,9 @@
         "height": 650,
         "minHeight": 650,
         "resizable": true,
-        "title": "TinyTool",
+        "title": "TinyTools",
         "width": 1080,
-        "minWidth": 1080,
-        "transparent": true,
-        "decorations": false
+        "minWidth": 1080
       }
     ]
   }

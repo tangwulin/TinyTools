@@ -14,6 +14,8 @@ export const useSettingStore = defineStore('setting', () => {
 
     const scale = ref(2)
     const enableQuickSave = ref(false)
+
+    const enableDevelopFeature = ref(false)
     return {
       coloringEdgeSeats,
       bgms,
@@ -24,7 +26,8 @@ export const useSettingStore = defineStore('setting', () => {
       enableFadein,
       fadeinTime,
       scale,
-      enableQuickSave
+      enableQuickSave,
+      enableDevelopFeature
     }
   },
   {
