@@ -293,17 +293,41 @@ const handleSetting = (x) => {
   scKey.value = Math.random()
 }
 
-const playBgm = () => {
+/**
+ * 播放音频。
+ *
+ * @param {Object} option - 音频选项对象。
+ * @param {string} option.url - 音频的URL。
+ * @param {number} option.offset - 音频的起始播放时间（单位：秒）。
+ * @param {string?} option.name - 音频的名称。
+ */
+const play = (option) => {
   const player = document.getElementById('player')
+  player.src = option.url
+  player.currentTime = option.offset
+  if (option.name)
+  {
+    message.info('正在播放：' + option.name)
+    console.log('正在播放：' + option.name)
+  }
+  player.play()
+}
+/**
+ * 从抽选时音乐库里面挑一首出来放。
+ */
+const playBgm = () => {
   const bgm = bgmList[bgmIndex]
   console.log(bgmList)
   if (bgmIndex < bgmList.length - 1) bgmIndex++
   else bgmIndex = 0
-  player.src = bgm.url
-  player.currentTime = bgm.offset
-  message.info('正在播放：' + bgm.name)
-  console.log('正在播放：' + bgm.name)
-  player.play()
+  play(bgm)
+}
+/**
+ * 顾名思义，暂停用的
+ */
+const pauseBgm = () => {
+  const player = document.getElementById('player')
+  player.pause()
 }
 
 // 在组件挂载时开始更新日期和时间
@@ -346,6 +370,11 @@ const saveOptions = [
     key: 4,
   },
 ]
+/**
+ * 保存当前座位为图片
+ * @param {number}x 倍率，为横向分辨率/960
+ * @returns {Promise<void>}
+ */
 const save = async (x) => {
   loading.value = true
   msgReactive = message.create('正在生成图片……', { type: 'loading', duration: 0 })
@@ -357,7 +386,7 @@ const save = async (x) => {
       {
         return (!node.classList.contains('n-button--dashed'))
       }
-      catch (e)
+      catch
       {
         return true
       }
@@ -383,6 +412,10 @@ const save = async (x) => {
         }, 3000)
       })
 }
+
+/**
+ * 在allSeats或oldRenderingList为空的情况下初始化。
+ */
 if (allSeats.value === null || oldRenderingList.value === null)
 {
   if (history.value.length !== 0)
@@ -398,6 +431,7 @@ if (allSeats.value === null || oldRenderingList.value === null)
     oldRenderingList.value = getRenderingList(allSeats.value, [])
   }
 }
+
 if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.value.length !== allSeats.value.length)
 {
   allSeats.value = allPerson.value.map((name, index) => {
@@ -405,14 +439,17 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
   })
   console.log('seat has been initialized')
 }
-
+/**
+ * 保存当前座位到历史记录
+ * @param {string?} type 抽选类型，会显示在历史记录里面
+ */
 const saveHistory = (type) => {
   const data = {
     time: Date.now(),
     allSeats: [...toRaw(allSeats.value)],
     oldRenderingList: [...toRaw(oldRenderingList.value)],
     isCurrent: true,
-    type: type
+    type: type || '???'
   }
   history.value = history.value.map(item => {return { ...item, isCurrent: false }})
   if (history.value.length !== 0 && history.value[0].type === '手动更改')
@@ -430,6 +467,10 @@ const saveHistory = (type) => {
   isPreview.value = false
   if (type === '手动保存' || type === '手动更改') message.success('保存成功')
 }
+/**
+ * 真·随机排列座位，六亲不认的那种
+ * @returns {Promise<void>}
+ */
 const reSort = async () => {
   loading.value = true
   await nextTick()
@@ -438,7 +479,10 @@ const reSort = async () => {
   await saveHistory('随机排列座位')
   setTimeout(() => {loading.value = false}, 50)
 }
-
+/**
+ * 与”重新排列座位“一样，只不过会一个个的展示结果
+ * @returns {Promise<void>}
+ */
 const gacha = async () => {
   loading.value = true
   playBgm()
@@ -446,11 +490,16 @@ const gacha = async () => {
   console.log('主线程向worker发送消息：', data)
   seatWorker.postMessage(data)
   setTimeout(async () => {
+    pauseBgm()
     await saveHistory('抽卡！')
     loading.value = false
   }, allSeats.value.length * 550)
 }
-
+/**
+ * 先随机指定次数次并展示每次结果，再将原始位置按“重新排列座位”的做法排列（虚 晃 一 枪）
+ * @param {number} x 次数
+ * @returns {Promise<void>}
+ */
 const rollSeats = async (x) => {
   loading.value = true
   await nextTick()
@@ -481,12 +530,14 @@ const rollSeats = async (x) => {
         }
       })
       await saveHistory('按规则Roll座位')
-      const player = document.getElementById('player')
-      player.pause()
+      pauseBgm()
     }
   }, 500)
 }
-
+/**
+ * ”优化“后的排座位方式，不会连续两次抽到边缘位置
+ * @returns {Promise<void>}
+ */
 const replaceSeats = async () => {
   loading.value = true
   console.log('开始重新排列座位')
@@ -500,13 +551,18 @@ const replaceSeats = async () => {
     loading.value = false
   }, 50)
 }
-
+/**
+ * 通过刷新key的方式重新渲染SeatTable组件
+ * @returns {Promise<void>}
+ */
 const reloadSeatTable = async () => {
   allSeats.value = [...allSeats.value] //这里不是脱裤子放屁，是为了触发侦听器
   stKey.value = Math.random() //刷新一下SeatTable组件
   console.log('SeatTable has been reload')
 }
-
+/**
+ * 退出预览状态
+ */
 const exitPreview = () => {
   isPreview.value = false
   oldRenderingList.value = temp.value.oldRenderingList
