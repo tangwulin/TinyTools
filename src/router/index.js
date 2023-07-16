@@ -8,6 +8,11 @@ const router = createRouter({
       path: '/',
       name: 'main',
       component: MainView
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('../views/TransparentView.vue')
     }
   ]
 })

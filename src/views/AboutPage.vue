@@ -1,4 +1,11 @@
 <script setup>
+import { useMessage } from 'naive-ui'
+import { useSettingStore } from '@/stores/setting'
+import { storeToRefs } from 'pinia'
+
+const setting = useSettingStore()
+const { enableDevelopFeature } = storeToRefs(setting)
+
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
 const revision = __REVISION__
@@ -8,12 +15,24 @@ const month = now.getMonth()
 const date = now.getDate()
 const buildDate = `${ year }/${ month + 1 }/${ date }`
 const githubLink = 'https://github.com/tangwulin/TinyTools/tree/' + github_sha
+
+const message = useMessage()
+
+let clickTimes = 0
+const clickHandler = () => {
+  clickTimes++
+  if (clickTimes >= 10 || enableDevelopFeature.value)
+  {
+    enableDevelopFeature.value = true
+    message.success('测试功能已开启！')
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col items-center h-full">
     <div class="mb-4">（未来的logo在这里）</div>
-    <p class="mb-8">TinyTools v{{ version }} Build {{ revision }}</p>
+    <p class="mb-8" @click="clickHandler">TinyTools v{{ version }} Build {{ revision }}</p>
     <p>TinyTools使用Tauri+Vite+Vue构建</p>
     <a href="https://tauri.app/" target="_blank">
       <img src="https://tauri.app/img/index/header_light.svg" alt="tauri logo" class="h-16">

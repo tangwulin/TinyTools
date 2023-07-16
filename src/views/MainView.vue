@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center justify-center flex-col w-max h-auto m-auto">
-    <div id="target-div" class="m-auto md:w-fit p-4">
+  <div id="MainView" class="flex items-center justify-center flex-col w-max h-auto m-auto">
+    <div id="target-div" class="m-auto md:w-fit p-4" style="margin: 0 auto">
       <div class="flex items-center justify-center mb-4">
         <n-button :size='"large"'>讲台</n-button>
       </div>
@@ -151,9 +151,11 @@
         <div class="flex flex-row justify-items-start" style="height: 60vh">
           <div class="px-2 pt-2 mr-2 bg-gray-200 rounded">
             <n-list class="flex flex-col justify-center w-1/4 min-w-0">
-              <n-list-item v-for="item in settings" :key="item.name" class="bg-gray-200 mt-auto">
-                <n-button text @click="handleSetting(item)">{{ item.name }}</n-button>
-              </n-list-item>
+              <template v-for="item in settings" :key="item.name">
+                <n-list-item v-if="item.active" class="bg-gray-200 mt-auto">
+                  <n-button text @click="handleSetting(item)">{{ item.name }}</n-button>
+                </n-list-item>
+              </template>
             </n-list>
           </div>
           <div class="flex flex-col justify-items-start w-full" :key="scKey">
@@ -202,7 +204,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref, watch, toRaw } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch, toRaw, computed } from 'vue'
 import {
   NButton,
   NButtonGroup,
@@ -217,9 +219,10 @@ import { ArrowDropDownFilled } from '@vicons/material'
 import SeatTable from '@/components/SeatTable.vue'
 import BgmSetting from './BgmSetting.vue'
 import PersonManage from './PersonManage.vue'
-import About from '../components/AboutPage.vue'
+import About from './AboutPage.vue'
 import ImageSetting from './ImageSetting.vue'
 import HistoryDrawer from '@/components/HistoryDrawer.vue'
+import DevelopFeature from '../components/DevelopFeature.vue'
 import { domToPng } from 'modern-screenshot'
 import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
@@ -228,6 +231,8 @@ import { storeToRefs } from 'pinia'
 import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
 import { debounce, shuffle } from 'lodash-es'
 import { getDefaultBgm, getDefaultFinalBgm } from '@/assets/script/musicHelper'
+
+
 
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
@@ -256,7 +261,8 @@ const {
   enableFadein,
   fadeinTime,
   scale,
-  enableQuickSave
+  enableQuickSave,
+  enableDevelopFeature
 } = storeToRefs(settingStore)
 
 const temp = ref({ allSeats: null, oldRenderingList: null })
@@ -273,10 +279,11 @@ const scKey = ref(Math.random())
 let msgReactive = null
 
 const settings = [
-  { name: '🎶背景音乐', component: BgmSetting },
-  { name: '💁人员管理', component: PersonManage },
-  { name: '🖼️图片生成', component: ImageSetting },
-  { name: 'ℹ️关于', component: About }
+  { name: '🎶背景音乐', component: BgmSetting, active: true },
+  { name: '💁人员管理', component: PersonManage, active: true },
+  { name: '🖼️图片生成', component: ImageSetting, active: true },
+  { name: '🛠️测试功能', component: DevelopFeature, active: enableDevelopFeature.value },
+  { name: 'ℹ️关于', component: About, active: true }
 ]
 
 let currentSetting = settings[0]
@@ -399,7 +406,7 @@ const saveOptions = [
     disabled: true
   },
   {
-    label: '1080P（默认）',
+    label: '1080P',
     key: 2,
 
   }, {
@@ -630,5 +637,10 @@ seatWorker.onmessage = function (event) {
 </script>
 
 <style scoped>
-
+#MainView {
+  background: white;
+  height: 100vh;
+  width: 100vw;
+  margin: 0
+}
 </style>
