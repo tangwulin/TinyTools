@@ -8,7 +8,7 @@ appWindow.setDecorations(true)
 </script>
 <template>
   <n-message-provider>
-    <MainView/>
+    <MainView style="background: white;height: 100vh;width: 100vw;margin: 0"/>
   </n-message-provider>
 </template>
 
@@ -20,5 +20,6 @@ appWindow.setDecorations(true)
 
 body {
   font-family: 'CustomFont', sans-serif;
+  background: transparent
 }
 </style>

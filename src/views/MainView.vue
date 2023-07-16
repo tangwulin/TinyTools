@@ -1,6 +1,6 @@
-<template>
-  <div class="flex items-center justify-center flex-col w-max h-auto m-auto">
-    <div id="target-div" class="m-auto md:w-fit p-4">
+<template style="background-color: white">
+  <div class="flex  justify-center flex-col w-max h-auto m-auto" >
+    <div id="target-div" class="m-auto md:w-fit p-4" style="margin: 0 auto">
       <div class="flex items-center justify-center mb-4">
         <n-button :size='"large"'>讲台</n-button>
       </div>
