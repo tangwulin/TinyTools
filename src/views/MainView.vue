@@ -362,7 +362,7 @@ const saveOptions = [
     disabled: true
   },
   {
-    label: '1080P（默认）',
+    label: '1080P',
     key: 2,
 
   }, {

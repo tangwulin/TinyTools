@@ -65,11 +65,16 @@
     },
     "windows": [
       {
+        "center": true,
         "fullscreen": false,
         "height": 650,
+        "minHeight": 650,
         "resizable": true,
         "title": "TinyTool",
-        "width": 1080
+        "width": 1080,
+        "minWidth": 1080,
+        "transparent": true,
+        "decorations": false
       }
     ]
   }
