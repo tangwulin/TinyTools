@@ -14,6 +14,9 @@
     "allowlist": {
       "shell": {
         "all": true
+      },
+      "window": {
+        "all": true
       }
     },
     "bundle": {

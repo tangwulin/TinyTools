@@ -1,7 +1,10 @@
 <script setup>
 //import { RouterLink, RouterView } from 'vue-router'
-import { NMessageProvider } from 'naive-ui';
-import MainView from "@/views/MainView.vue";
+import { appWindow } from '@tauri-apps/api/window'
+import { NMessageProvider } from 'naive-ui'
+import MainView from '@/views/MainView.vue'
+
+appWindow.setDecorations(true)
 </script>
 <template>
   <n-message-provider>
@@ -14,6 +17,7 @@ import MainView from "@/views/MainView.vue";
   font-family: 'CustomFont';
   src: url('@/assets/fonts/zh-cn.ttf') format('truetype');
 }
+
 body {
   font-family: 'CustomFont', sans-serif;
 }
