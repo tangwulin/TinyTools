@@ -47,7 +47,7 @@ const githubLink = 'https://github.com/tangwulin/TinyTools/tree/' + github_sha
     <div class="mt-auto text-xs">
       <p class="mt-auto flex">Powered By Aurora Studio
         <a class="ml-auto" :href="githubLink" target="_blank">
-        #{{revision }}
+          #{{ revision }}
         </a>
         &nbsp;{{ buildDate }}
       </p>
