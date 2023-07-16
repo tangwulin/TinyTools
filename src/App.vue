@@ -1,14 +1,13 @@
 <script setup>
 //import { RouterLink, RouterView } from 'vue-router'
-import { appWindow } from '@tauri-apps/api/window'
 import { NMessageProvider } from 'naive-ui'
 import MainView from '@/views/MainView.vue'
 
-appWindow.setDecorations(true)
 </script>
 <template>
   <n-message-provider>
-    <MainView style="background: white;height: 100vh;width: 100vw;margin: 0"/>
+<!--    <MainView/>-->
+    <router-view/>
   </n-message-provider>
 </template>
 
