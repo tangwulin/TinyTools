@@ -215,10 +215,10 @@ import {
 import { Refresh, RefreshDot } from '@vicons/tabler'
 import { ArrowDropDownFilled } from '@vicons/material'
 import SeatTable from '@/components/SeatTable.vue'
-import BgmSetting from '@/components/BgmSetting.vue'
-import PersonManage from '@/components/PersonManage.vue'
+import BgmSetting from './BgmSetting.vue'
+import PersonManage from './PersonManage.vue'
 import About from '../components/AboutPage.vue'
-import ImageSetting from '@/components/ImageSetting.vue'
+import ImageSetting from './ImageSetting.vue'
 import HistoryDrawer from '@/components/HistoryDrawer.vue'
 import { domToPng } from 'modern-screenshot'
 import { useSeatStore } from '@/stores/seat'
@@ -227,7 +227,7 @@ import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
 import { debounce, shuffle } from 'lodash-es'
-import { getDefaultBgm,getDefaultFinalBgm } from '@/assets/script/musicHelper'
+import { getDefaultBgm, getDefaultFinalBgm } from '@/assets/script/musicHelper'
 
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
@@ -246,7 +246,18 @@ const settingStore = useSettingStore()
 
 const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
-const { coloringEdgeSeats, bgms, finalBgms, isBGMInitialized, scale, enableQuickSave } = storeToRefs(settingStore)
+const {
+  coloringEdgeSeats,
+  bgms,
+  finalBgms,
+  isBGMInitialized,
+  enableBgm,
+  enableFinalBgm,
+  enableFadein,
+  fadeinTime,
+  scale,
+  enableQuickSave
+} = storeToRefs(settingStore)
 
 const temp = ref({ allSeats: null, oldRenderingList: null })
 const showSetting = ref(false)
@@ -270,7 +281,7 @@ const settings = [
 
 let currentSetting = settings[0]
 
-if (bgms.value.length === 0||finalBgms.value.length === 0)
+if (bgms.value.length === 0 || finalBgms.value.length === 0)
 {
   bgms.value = getDefaultBgm()
   finalBgms.value = getDefaultFinalBgm()
@@ -314,12 +325,25 @@ const play = (option) => {
     message.info('正在播放：' + option.name)
     console.log('正在播放：' + option.name)
   }
+  if (enableFadein.value)
+  {
+    const originVol = player.volume
+    player.volume = 0
+    let i = 0
+    const interval = setInterval(() => {
+      i++
+      player.volume = player.volume + originVol / 50
+      if (i >= 50) clearInterval(interval)
+    }, fadeinTime.value * 1000 / 50)
+
+  }
   player.play()
 }
 /**
  * 从抽选时音乐库里面挑一首出来放。
  */
 const playBgm = () => {
+  if (!enableBgm.value) return
   const bgm = bgmList[bgmIndex]
   console.log(bgmList)
   if (bgmIndex < bgmList.length - 1) bgmIndex++
@@ -335,6 +359,7 @@ const pauseBgm = () => {
 }
 
 const playFinalBgm = () => {
+  if (!enableFinalBgm.value) return
   const bgm = finalBgmList[finalBgmIndex]
   console.log(finalBgmList)
   if (finalBgmIndex < finalBgmList.length - 1) finalBgmIndex++

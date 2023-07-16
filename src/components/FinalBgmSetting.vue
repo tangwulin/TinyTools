@@ -6,12 +6,12 @@ import { InfoFilled } from '@vicons/material'
 import { useSettingStore } from '@/stores/setting'
 import { NButton, NCard, NDataTable, NForm, NModal, useMessage } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { generateUniqueId, getDefaultBgm } from '@/assets/script/musicHelper'
+import { generateUniqueId, getDefaultBgm,getDefaultFinalBgm } from '@/assets/script/musicHelper'
 import { debounce } from 'lodash-es'
 
 const message = useMessage()
 const setting = useSettingStore()
-const { bgms, isBGMInitialized } = storeToRefs(setting)
+const { finalBgms, isBGMInitialized } = storeToRefs(setting)
 
 const showEditModal = ref(false)
 const formData = ref({ name: '', url: '', offset: 0, uniqueId: '' })
@@ -41,14 +41,14 @@ const editHandler = (row) => {
 }
 const deleteHandler = (row) => {
 
-  bgms.value = bgms.value.filter(item => item.uniqueId !== row.uniqueId)
+  finalBgms.value = finalBgms.value.filter(item => item.uniqueId !== row.uniqueId)
   message.success('删除成功')
 }
 const handler = () => {
-  if (!isEdit) bgms.value.push({ ...formData.value, uniqueId: generateUniqueId() })
+  if (!isEdit) finalBgms.value.push({ ...formData.value, uniqueId: generateUniqueId() })
   else
   {
-    bgms.value = bgms.value.map(item => {
+    finalBgms.value = finalBgms.value.map(item => {
       if (item.uniqueId === formData.value.uniqueId)
       {
         return formData.value // 使用展开语法更新 title 属性
@@ -63,10 +63,10 @@ const handler = () => {
 let isEdit = false
 const cardTitle = computed(() => {return isEdit ? '编辑' : '添加'})
 
-if (bgms.value.length === 0 && !isBGMInitialized.value)
+if (finalBgms.value.length === 0 && !isBGMInitialized.value)
 {
   isBGMInitialized.value = true
-  bgms.value = getDefaultBgm()
+  finalBgms.value = getDefaultFinalBgm()
 }
 
 const createColumns = (play, edit, del) => {
@@ -100,7 +100,7 @@ const createColumns = (play, edit, del) => {
                     class: 'p-2',
                     renderIcon: () => {return h(Refresh)},
                     onClick: () => {
-                      bgms.value = getDefaultBgm()
+                      finalBgms.value = getDefaultFinalBgm()
                       message.success('重置成功')
                     }
                   },
@@ -193,7 +193,7 @@ const rules = {
   <div>
     <n-data-table
         :columns="columns"
-        :data="bgms"
+        :data="finalBgms"
         :pagination="false"
         :bordered="false"
         :max-height="tableHeight"
