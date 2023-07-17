@@ -52,7 +52,13 @@
         },
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "wix": {
+          "language": ["zh-CN"]
+        },
+        "nsis": {
+          "languages": ["SimpChinese"]
+        }
       }
     },
     "security": {
