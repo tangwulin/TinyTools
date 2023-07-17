@@ -1,0 +1,35 @@
+{
+  "version": "v3.1.0",
+  "notes": "- feat: 添加了结算音乐功能\n- 优化了触屏设备的使用体验",
+  "pub_date": "2023-07-17T04:18:32.302Z",
+  "platforms": {
+    "win64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUUxCTmQ4ZU1PTTRTNjJxcWtrMGIyUWlwUVp2dkFXbUd0TUlsZXJWNEhCYXBlYTgyNm96REtiMGVCZ3A0Nk9mUGNuOStabEszVnRtdTF2NENQaUxibEUzelBEOXdoa1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjg5NTY3NDA0CWZpbGU6VGlueVRvb2xfMy4xLjBfeDY0X3poLUNOLm1zaS56aXAKT0E5MXQ4T0JCM2Vwdm9iUGhHaGFsWjl1U3ZuWldXL1BkU0xGSTRGay9DTFh5dWw3V3NldXZaMnZkVkpsZlRmd3VFNTlURHBVb2JzNEJ4Uk1ETldXQ1E9PQo=",
+      "url": "https://github.com/tangwulin/TinyTools/releases/download/v3.1.0/TinyTool_3.1.0_x64_zh-CN.msi.zip"
+    },
+    "linux": {
+      "signature": "",
+      "url": ""
+    },
+    "darwin": {
+      "signature": "",
+      "url": ""
+    },
+    "darwin-aarch64": {
+      "signature": "",
+      "url": ""
+    },
+    "darwin-x86_64": {
+      "signature": "",
+      "url": ""
+    },
+    "linux-x86_64": {
+      "signature": "",
+      "url": ""
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUUxCTmQ4ZU1PTTRTNjJxcWtrMGIyUWlwUVp2dkFXbUd0TUlsZXJWNEhCYXBlYTgyNm96REtiMGVCZ3A0Nk9mUGNuOStabEszVnRtdTF2NENQaUxibEUzelBEOXdoa1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjg5NTY3NDA0CWZpbGU6VGlueVRvb2xfMy4xLjBfeDY0X3poLUNOLm1zaS56aXAKT0E5MXQ4T0JCM2Vwdm9iUGhHaGFsWjl1U3ZuWldXL1BkU0xGSTRGay9DTFh5dWw3V3NldXZaMnZkVkpsZlRmd3VFNTlURHBVb2JzNEJ4Uk1ETldXQ1E9PQo=",
+      "url": "https://github.com/tangwulin/TinyTools/releases/download/v3.1.0/TinyTool_3.1.0_x64_zh-CN.msi.zip"
+    }
+  }
+}
