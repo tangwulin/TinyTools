@@ -1,12 +1,10 @@
 <script setup>
 //import { RouterLink, RouterView } from 'vue-router'
 import { NMessageProvider } from 'naive-ui'
-import MainView from '@/views/MainView.vue'
 
 </script>
 <template>
   <n-message-provider>
-<!--    <MainView/>-->
     <router-view/>
   </n-message-provider>
 </template>
