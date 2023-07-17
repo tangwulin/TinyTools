@@ -119,19 +119,15 @@
           <n-button @click="showSetting=true">设置</n-button>
           <n-button @click="showManager" :disabled="loading ||isPreview">人员管理</n-button>
           <n-button @click="showMultiAddModal" :disabled="loading ||isPreview">增加人员</n-button>
+          <n-button @click="save(scale)" :disabled="loading ||isPreview">保存图片</n-button>
           <n-dropdown
               :options="saveOptions"
               @select="save"
           >
-            <n-button
-                icon-placement="right"
-                :disabled="loading ||isPreview"
-                @click="enableQuickSave ? save(scale) : ()=>{}"
-            >
+            <n-button :disabled="loading ||isPreview">
               <template #icon>
                 <ArrowDropDownFilled/>
               </template>
-              保存图片
             </n-button>
           </n-dropdown>
         </n-button-group>
@@ -231,8 +227,6 @@ import { storeToRefs } from 'pinia'
 import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
 import { debounce, shuffle } from 'lodash-es'
 import { getDefaultBgm, getDefaultFinalBgm } from '@/assets/script/musicHelper'
-
-
 
 const version = __APP_VERSION__
 const github_sha = __GITHUB_SHA__
