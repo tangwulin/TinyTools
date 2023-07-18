@@ -7,12 +7,10 @@ const message = useMessage()
 const isTauri = window.__TAURI_METADATA__ !== undefined
 const openDockWindow = async () => {
   const monitor = await currentMonitor()
-  const width = monitor.size.width * 0.5
-  const height = monitor.size.height * 0.15
   const dock = new WebviewWindow('dock', {
     url: '/test',
-    width: width,
-    height: height,
+    width: monitor.size.width * 0.5,
+    height: monitor.size.height * 0.15,
     resizable: false,
     x: monitor.size.width * 0.25,
     y: monitor.size.height * 0.75,
