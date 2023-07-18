@@ -48,7 +48,6 @@ const openMainWindow = async () => {
 }
 router.afterEach(async (to, from) => {
   // 在路由导航成功完成后执行的逻辑
-  console.log(isBooting)
   if (isBooting)
   {
     setTimeout(() => {openMainWindow()}, 200)
