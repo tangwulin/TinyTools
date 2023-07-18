@@ -4,7 +4,8 @@
     "beforeBuildCommand": "pnpm run build",
     "beforeDevCommand": "pnpm run dev",
     "devPath": "http://localhost:5173/",
-    "distDir": "../dist"
+    "distDir": "../dist",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "TinyTool",
@@ -54,10 +55,14 @@
         "digestAlgorithm": "sha256",
         "timestampUrl": "",
         "wix": {
-          "language": ["zh-CN"]
+          "language": [
+            "zh-CN"
+          ]
         },
         "nsis": {
-          "languages": ["SimpChinese"]
+          "languages": [
+            "SimpChinese"
+          ]
         }
       }
     },
@@ -74,14 +79,25 @@
     },
     "windows": [
       {
+        "label": "main",
+        "title": "TinyTools",
+        "height": 650,
+        "width": 1080,
         "center": true,
         "fullscreen": false,
-        "height": 650,
-        "minHeight": 650,
         "resizable": true,
-        "title": "TinyTools",
-        "width": 1080,
-        "minWidth": 1080
+        "visible": false
+      },
+      {
+        "label": "splashscreen",
+        "skipTaskbar": true,
+        "width": 600,
+        "height": 400,
+        "center": true,
+        "transparent": true,
+        "decorations": false,
+        "resizable": false,
+        "url": "splashscreen.html"
       }
     ]
   }
