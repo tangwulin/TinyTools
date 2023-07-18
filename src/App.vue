@@ -1,11 +1,11 @@
 <script setup>
 //import { RouterLink, RouterView } from 'vue-router'
-import { NMessageProvider } from 'naive-ui';
-import MainView from "@/views/MainView.vue";
+import { NMessageProvider } from 'naive-ui'
+
 </script>
 <template>
   <n-message-provider>
-    <MainView/>
+    <router-view/>
   </n-message-provider>
 </template>
 
@@ -14,7 +14,9 @@ import MainView from "@/views/MainView.vue";
   font-family: 'CustomFont';
   src: url('@/assets/fonts/zh-cn.ttf') format('truetype');
 }
+
 body {
   font-family: 'CustomFont', sans-serif;
+  background: transparent
 }
 </style>

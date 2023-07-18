@@ -1,25 +1,25 @@
 <br />
 <p align="center">
 <a href="https://github.com/tangwulin/TinyTools" target="blank">
-    <img src="images/logo.png" alt="Logo" width="156" height="156">
+    <img src="logo.png" alt="Logo" style="height: 16em">
   </a>
   <h2 align="center" style="font-weight: 600">TinyTools</h2>
 
   <p align="center">
-    一个拿来抽座位的东西
+    一个班级管理工具集
     <br />
     <a href="https://tiny-tools-lime.vercel.app/" target="blank"><strong>🌎 访问DEMO</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="#%EF%B8%8F-安装" target="blank"><strong>📦️ 下载安装包</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
-    <a href="https://t.me/yesplaymusic" target="blank"><strong>💬 加入交流群</strong></a>
+    <a href="https://qm.qq.com/cgi-bin/qm/qr?k=uzG7G5F3KZHdTiM4iLhpu-75XjFDHLLp&jump_from=webapi&authKey=buoIUVnbAl04s8AdlaApJAV94ZjnU12GwPz7M0iEPrNe6UXchAAIIJ37VSguYBIk" target="blank"><strong>💬 加入交流群</strong></a>
     <br />
     <br />
   </p>
 
 ## ✨ 特性
 
-- ✅ 使用 Vue.js 全家桶开发
-- 🪶 运作全过程均在前端中完成，又轻又快，无需笨重的Electron
-- ✈️ 使用多线程处理数据，拒绝慢、卡 ~~（当然要是你的机器太差也没办法）~~
+- ✅ 使用 Vue.js + Tauri开发，又轻又快，低配机器不再等待
+- 🪶 超小二进制构建（15MB内），媲美Native应用
+- ✈️ 使用WebWorker处理数据，拒绝慢、卡 ~~（当然要是你的机器太差也没办法）~~
 - ⚙️ 全新编写的多种座位抽选逻辑，为你创造不再抽到犄角旮旯的体验
 - 🎶 内置数十首坤曲 ~~增添一些抽座位时的乐趣~~
 - 🛠 更多特性开发中
@@ -56,37 +56,6 @@ pnpm build
 
 如果在 Release 页面没有找到适合你的设备的安装包的话，你可以根据下面的步骤来打包自己的客户端。
 
-[//]: # (1. 打包 Electron 需要用到 Node.js 和 Yarn。可前往 [Node.js 官网]&#40;https://nodejs.org/zh-cn/&#41; 下载安装包。安装 Node.js)
-
-[//]: # (   后可在终端里执行 `npm install -g yarn` 来安装 Yarn。)
-
-[//]: # ()
-[//]: # (2. 使用 `git clone --recursive https://github.com/qier222/YesPlayMusic.git` 克隆本仓库到本地。)
-
-[//]: # ()
-[//]: # (3. 使用 `yarn install` 安装项目依赖。)
-
-[//]: # ()
-[//]: # (4. 复制 `/.env.example` 文件为 `/.env` 。)
-
-[//]: # ()
-[//]: # (5. 选择下列表格的命令来打包适合的你的安装包，打包出来的文件在 `/dist_electron`)
-
-[//]: # (   目录下。了解更多信息可访问 [electron-builder 文档]&#40;https://www.electron.build/cli&#41;)
-
-[//]: # ()
-[//]: # (| 命令                                         | 说明                  |)
-
-[//]: # (|--------------------------------------------|---------------------|)
-
-[//]: # (| `yarn electron:build --windows nsis:ia32`  | Windows 32 位        |)
-
-[//]: # (| `yarn electron:build --windows nsis:arm64` | Windows ARM         |)
-
-[//]: # (| `yarn electron:build --linux deb:armv7l`   | Debian armv7l（树莓派等） |)
-
-[//]: # (| `yarn electron:build --macos dir:arm64`    | macOS ARM           |)
-
 1. 打包 Tauri 需要用到 Node.js 和 Pnpm。可前往 [Node.js 官网](https://nodejs.org/zh-cn/) 下载安装包。安装 Node.js
    后可在终端里执行 `npm install -g pnpm` 来安装 Pnpm。
 2. 使用 `git clone https://github.com/tangwulin/TinyTools.git` 克隆本仓库到本地。
@@ -108,48 +77,5 @@ pnpm build
 
 ## 🖼️ 截图
 
-[//]: # (![lyrics][lyrics-screenshot])
-
-[//]: # (![library-dark][library-dark-screenshot])
-
-[//]: # (![album][album-screenshot])
-
-[//]: # (![home-2][home-2-screenshot])
-
-[//]: # (![artist][artist-screenshot])
-
-[//]: # (![search][search-screenshot])
-
-[//]: # (![home][home-screenshot])
-
-[//]: # (![explore][explore-screenshot])
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
-[//]: # ([album-screenshot]: images/album.png)
-
-[//]: # ()
-[//]: # ([artist-screenshot]: images/artist.png)
-
-[//]: # ()
-[//]: # ([explore-screenshot]: images/explore.png)
-
-[//]: # ()
-[//]: # ([home-screenshot]: images/home.png)
-
-[//]: # ()
-[//]: # ([home-2-screenshot]: images/home-2.png)
-
-[//]: # ()
-[//]: # ([lyrics-screenshot]: images/lyrics.png)
-
-[//]: # ()
-[//]: # ([library-screenshot]: images/library.png)
-
-[//]: # ()
-[//]: # ([library-dark-screenshot]: images/library-dark.png)
-
-[//]: # ()
-[//]: # ([search-screenshot]: images/search.png)
+（暂时没有，有空补上）
 
