@@ -47,7 +47,7 @@ const menuOptions = [
       </n-button>
     </n-space>
   </div>
-  <div id="bgmSettingContainer">
+  <div id="bgmSettingContainer" style="height: 100%">
     <component :is="component"/>
   </div>
 
