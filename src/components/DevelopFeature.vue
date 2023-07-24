@@ -43,7 +43,7 @@ const closeDockWindow = () => {
 }
 const checkUpdates = async () => {
   const update = await checkUpdate()
-  message.info('检查更新结果：' + JSON.stringify(update)
+  message.info('检查更新结果：' + JSON.stringify(update))
 }
 </script>
 
