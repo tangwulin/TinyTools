@@ -1,6 +1,12 @@
 <script setup>
+import { useSettingStore } from '@/stores/setting'
+import { storeToRefs } from 'pinia'
+import { checkUpdate } from '@tauri-apps/api/updater';
 import { currentMonitor, WebviewWindow } from '@tauri-apps/api/window'
 import { NButton, useMessage } from 'naive-ui'
+
+const setting = useSettingStore()
+const { enableDocking } = storeToRefs(setting)
 
 const message = useMessage()
 
@@ -40,11 +46,27 @@ const closeDockWindow = () => {
     dock.close()
   }
 }
+const checkUpdates = async () => {
+  const update = await checkUpdate()
+  message.info('检查更新结果：' + JSON.stringify(update))
+}
+
 </script>
 
 <template>
-  <n-button @click="openDockWindow" :disabled="!isTauri">打开dock窗口</n-button>
-  <n-button @click="closeDockWindow" :disabled="!isTauri">关闭dock窗口</n-button>
+  <n-space vertical>
+    <n-space >
+      <n-button :disabled="!isTauri" type="primary" round @click="openDockWindow">启动dock</n-button>
+      <n-button :disabled="!isTauri" type="primary" round @click="closeDockWindow">关闭dock</n-button>
+    </n-space>
+    <n-space>
+      <n-button @click="checkUpdates">调用Invoke</n-button>
+    </n-space>
+    <n-space>
+      <n-switch v-model:value="enableDocking"/>
+    </n-space>
+  </n-space>
+
 </template>
 
 <style scoped>
