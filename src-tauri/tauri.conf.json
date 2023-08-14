@@ -12,6 +12,10 @@
     "version": "../package.json"
   },
   "tauri": {
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    },
     "allowlist": {
       "shell": {
         "all": true
