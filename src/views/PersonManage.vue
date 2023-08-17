@@ -51,8 +51,12 @@ const addPerson = () => {
 
 <template>
   <div>
+    <n-space justify="space-between">
+      <p>修改后请重启程序以重新生成座位</p>
+      <n-button type="success" @click="showAddModal=true">批量添加</n-button>
+    </n-space>
     <n-dynamic-tags v-model:value="allPerson" @update:value="message.success('修改成功')"/>
-    <n-button type="success" @click="showAddModal=true">批量添加</n-button>
+
     <n-modal v-model:show="showAddModal" :mask-closable="false">
       <n-card
           style="width: 50%"

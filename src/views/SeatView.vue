@@ -9,7 +9,6 @@
             v-model:seats="allSeats"
             v-model:rendering-list="oldRenderingList"
             :key="stKey"
-            :coloring-edge="coloringEdgeSeats"
             @update="updateHandler"
             :disable="isPreview || loading"
         />
@@ -19,6 +18,14 @@
       </div>
     </div>
     <div class="flex items-center justify-center mt-8 flex-col">
+
+      <!-- 调试工具栏 -->
+      <div v-show="enableDevelopFeature">
+        <n-button-group>
+          <n-button @click="colorEdge" :disabled="loading ||isPreview">染色边缘座位</n-button>
+          <n-button @click="removeEdgeColor" :disabled="loading ||isPreview">去除所有染色</n-button>
+        </n-button-group>
+      </div>
       <div class="flex items-center justify-center flex-col md:flex-row flex-wrap md:w-3/5"> <!-- 操作区域 -->
         <!--        <n-button @click="reloadSeatTable" :disabled="loading">重载座位表组件</n-button>-->
         <n-tooltip trigger="hover">
@@ -106,14 +113,15 @@
           <del>，六亲不认的那种</del>
         </n-tooltip>
       </div>
-      <div> <!-- 下方工具条 -->
-        <!--        <n-tooltip trigger="hover">-->
-        <!--          &lt;!&ndash;suppress VueUnrecognizedSlot &ndash;&gt;-->
-        <!--          <template #trigger>-->
-        <!--            <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>-->
-        <!--          </template>-->
-        <!--          边缘位置高亮-->
-        <!--        </n-tooltip>-->
+      <div>
+        <!--                <n-tooltip trigger="hover">-->
+        <!--                  &lt;!&ndash;suppress VueUnrecognizedSlot &ndash;&gt;-->
+        <!--                  <template #trigger>-->
+        <!--                    <n-switch v-model:value="coloringEdgeSeats" @update:value="repaint" :disabled="loading"/>-->
+        <!--                  </template>-->
+        <!--                  边缘位置高亮-->
+        <!--                </n-tooltip>-->
+        <!-- 下方工具条 -->
         <n-button-group>
           <n-button @click="showHistory=true" :disabled="loading">历史记录</n-button>
           <n-button @click="showSetting=true">设置</n-button>
@@ -200,7 +208,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref, watch, toRaw, computed } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch, toRaw } from 'vue'
 import {
   NButton,
   NButtonGroup,
@@ -224,7 +232,7 @@ import { useSeatStore } from '@/stores/seat'
 import { usePersonStore } from '@/stores/person'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
-import { getRenderingList, replaceArrayElements } from '@/assets/script/seatHelper'
+import { getRenderingList, parseEdgeSeatIndex, replaceArrayElements } from '@/assets/script/seatHelper'
 import { debounce, shuffle } from 'lodash-es'
 import { getDefaultBgm, getDefaultFinalBgm } from '@/assets/script/musicHelper'
 
@@ -246,7 +254,6 @@ const settingStore = useSettingStore()
 const { allSeats, oldRenderingList, history } = storeToRefs(seatStore)
 const { allPerson } = storeToRefs(personStore)
 const {
-  coloringEdgeSeats,
   bgms,
   finalBgms,
   isBGMInitialized,
@@ -255,7 +262,7 @@ const {
   enableFadein,
   fadeinTime,
   scale,
-  enableQuickSave,
+  // enableQuickSave,
   enableDevelopFeature
 } = storeToRefs(settingStore)
 
@@ -271,6 +278,19 @@ const times = ref(5)
 const stKey = ref(Math.random())
 const scKey = ref(Math.random())
 let msgReactive = null
+
+const colorEdge = () => {
+  const edgeIndex = parseEdgeSeatIndex(allSeats.value.length)
+  edgeIndex.forEach(index => {
+    allSeats.value[index].color = '#43a447'
+  })
+  oldRenderingList.value = getRenderingList(allSeats.value, oldRenderingList.value)
+}
+
+const removeEdgeColor = () => {
+  allSeats.value.forEach(item => {item.color = null})
+  oldRenderingList.value = getRenderingList(allSeats.value, oldRenderingList.value)
+}
 
 const settings = [
   { name: '🎶背景音乐', component: BgmSetting, active: true },
@@ -484,8 +504,8 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
 const saveHistory = (type) => {
   const data = {
     time: Date.now(),
-    allSeats: [...toRaw(allSeats.value)],
-    oldRenderingList: [...toRaw(oldRenderingList.value)],
+    allSeats: [...toRaw(allSeats.value.slice().map(item => {return { ...item, color: null }}))],
+    oldRenderingList: [...toRaw(oldRenderingList.value).slice().map(item => {return { ...item, color: null }})],
     isCurrent: true,
     type: type || '???'
   }

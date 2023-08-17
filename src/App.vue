@@ -34,12 +34,15 @@ const openDockWindow = async () => {
 }
 const listenClose = async () => {
   const unlisten = await listen('tauri://close-requested', async () => {
+    const mainWindow = getCurrent()
     if (enableDocking.value)
     {
       await openDockWindow()
+      await mainWindow.hide()
     }
-    const mainWindow = getCurrent()
-    await mainWindow.hide()
+    else{
+      await mainWindow.close()
+    }
   })
 }
 
