@@ -15,7 +15,7 @@ const isTauri = window.__TAURI_METADATA__ !== undefined
 const openDockWindow = async () => {
   const monitor = await currentMonitor()
   const dock = new WebviewWindow('dock', {
-    url: '/test',
+    url: '#/test',
     width: monitor.size.width * 0.5,
     height: monitor.size.height * 0.15,
     resizable: false,
