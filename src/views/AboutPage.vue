@@ -20,12 +20,12 @@ const message = useMessage()
 
 let clickTimes = 0
 const clickHandler = () => {
-  clickTimes++
-  if (clickTimes >= 10 || enableDevelopFeature.value)
+  if (!enableDevelopFeature.value) clickTimes++
+  if (clickTimes >= 10)
   {
     enableDevelopFeature.value = true
-    message.success('测试功能已开启！')
   }
+  if (enableDevelopFeature.value) message.success('测试功能已开启！请重新启动程序')
 }
 </script>
 
