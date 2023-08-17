@@ -288,7 +288,7 @@ const colorEdge = () => {
 }
 
 const removeEdgeColor = () => {
-  allSeats.value = allSeats.value.map(item => {return { ...item, color: null }})
+  allSeats.value.forEach(item => {item.color = null})
   oldRenderingList.value = getRenderingList(allSeats.value, oldRenderingList.value)
 }
 
@@ -504,8 +504,8 @@ if ((allPerson.value.length !== 0 && allSeats.value.length === 0) || allPerson.v
 const saveHistory = (type) => {
   const data = {
     time: Date.now(),
-    allSeats: [...toRaw(allSeats.value)],
-    oldRenderingList: [...toRaw(oldRenderingList.value)],
+    allSeats: [...toRaw(allSeats.value.slice().map(item => {return { ...item, color: null }}))],
+    oldRenderingList: [...toRaw(oldRenderingList.value).slice().map(item => {return { ...item, color: null }})],
     isCurrent: true,
     type: type || '???'
   }
